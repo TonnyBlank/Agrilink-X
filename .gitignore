@@ -1,0 +1,11 @@
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.env
+**/.env
+.temp/
+supabase/.temp/
+frontend/.git.backup/
+.DS_Store
+Thumbs.db

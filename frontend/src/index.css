@@ -1,0 +1,260 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@300..700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 140 10% 97%;
+    --foreground: 150 30% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 150 30% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 30% 8%;
+
+    --primary: 152 60% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 42 90% 55%;
+    --secondary-foreground: 150 30% 8%;
+
+    --muted: 140 10% 93%;
+    --muted-foreground: 150 10% 45%;
+
+    --accent: 42 90% 55%;
+    --accent-foreground: 150 30% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 140 10% 90%;
+    --input: 140 10% 90%;
+    --ring: 152 60% 36%;
+
+    --radius: 1rem;
+
+    /* Forest Glass tokens */
+    --emerald-50: 152 60% 96%;
+    --emerald-100: 152 55% 90%;
+    --emerald-200: 152 50% 78%;
+    --emerald-400: 152 58% 48%;
+    --emerald-500: 152 60% 36%;
+    --emerald-600: 152 65% 28%;
+    --emerald-700: 152 68% 20%;
+    --emerald-900: 150 30% 8%;
+
+    --gold-300: 42 95% 68%;
+    --gold-400: 42 92% 60%;
+    --gold-500: 42 90% 55%;
+    --gold-600: 38 88% 45%;
+
+    --obsidian-800: 220 15% 13%;
+    --obsidian-900: 220 18% 8%;
+    --obsidian-950: 220 20% 5%;
+
+    --steel-400: 215 20% 55%;
+    --steel-500: 215 25% 45%;
+    --steel-600: 215 30% 35%;
+
+    /* Glass effects */
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 0 0% 100% / 0.3;
+    --glass-blur: 24px;
+
+    --gradient-hero: linear-gradient(135deg, hsl(152 68% 20%), hsl(150 30% 8%));
+    --gradient-gold: linear-gradient(135deg, hsl(42 90% 55%), hsl(42 92% 60%));
+    --gradient-emerald: linear-gradient(135deg, hsl(152 60% 36%), hsl(152 58% 48%));
+    --gradient-obsidian: linear-gradient(135deg, hsl(220 18% 8%), hsl(220 15% 13%));
+    --gradient-steel: linear-gradient(135deg, hsl(215 25% 45%), hsl(215 20% 55%));
+
+    --shadow-glass: 0 8px 32px hsl(150 30% 8% / 0.08);
+    --shadow-elevated: 0 16px 48px -8px hsl(150 30% 8% / 0.12);
+    --shadow-glow-emerald: 0 0 40px hsl(152 60% 36% / 0.2);
+    --shadow-glow-gold: 0 0 40px hsl(42 90% 55% / 0.25);
+
+    --sidebar-background: 152 68% 20%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 42 90% 55%;
+    --sidebar-primary-foreground: 150 30% 8%;
+    --sidebar-accent: 152 60% 28%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 152 40% 25%;
+    --sidebar-ring: 42 90% 55%;
+  }
+
+  .dark {
+    --background: 220 18% 8%;
+    --foreground: 0 0% 95%;
+    --card: 220 15% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 220 15% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 152 60% 45%;
+    --primary-foreground: 220 18% 8%;
+    --secondary: 42 90% 55%;
+    --secondary-foreground: 220 18% 8%;
+    --muted: 220 12% 18%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 42 90% 55%;
+    --accent-foreground: 220 18% 8%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 95%;
+    --border: 220 12% 20%;
+    --input: 220 12% 20%;
+    --ring: 152 60% 45%;
+
+    --glass-bg: 220 15% 12% / 0.6;
+    --glass-border: 0 0% 100% / 0.08;
+  }
+}
+
+@layer base {
+  html, body, #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  * {
+    @apply border-border;
+  }
+  * {
+    min-width: 0;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .glass-emerald {
+    background: hsl(152 60% 36% / 0.08);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid hsl(152 60% 36% / 0.15);
+  }
+
+  .glass-obsidian {
+    background: hsl(220 18% 8% / 0.85);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid hsl(42 90% 55% / 0.15);
+  }
+
+  .glass-steel {
+    background: hsl(215 25% 45% / 0.08);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid hsl(215 25% 45% / 0.15);
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--gold-500)), hsl(var(--gold-300)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-emerald {
+    background: linear-gradient(135deg, hsl(var(--emerald-500)), hsl(var(--emerald-400)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-hero-gradient {
+    background: var(--gradient-hero);
+  }
+
+  .bg-gold-gradient {
+    background: var(--gradient-gold);
+  }
+
+  .bg-emerald-gradient {
+    background: var(--gradient-emerald);
+  }
+
+  .bg-obsidian-gradient {
+    background: var(--gradient-obsidian);
+  }
+
+  .bg-steel-gradient {
+    background: var(--gradient-steel);
+  }
+
+  .shadow-glass {
+    box-shadow: var(--shadow-glass);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .shadow-glow-emerald {
+    box-shadow: var(--shadow-glow-emerald);
+  }
+
+  .shadow-glow-gold {
+    box-shadow: var(--shadow-glow-gold);
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 20px hsl(42 90% 55% / 0.3), 0 0 60px hsl(42 90% 55% / 0.1);
+    border-color: hsl(var(--gold-500));
+  }
+
+  .bento-card {
+    @apply rounded-[2rem] p-6 glass shadow-glass transition-all duration-300;
+  }
+
+  @media (max-width: 640px) {
+    .bento-card {
+      @apply p-4 rounded-[1.5rem];
+    }
+  }
+
+  .bento-card:hover {
+    @apply shadow-elevated;
+    transform: translateY(-2px);
+  }
+
+  .sensor-pulse {
+    animation: sensor-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes sensor-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  @keyframes radar-sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .radar-sweep {
+    animation: radar-sweep 3s linear infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+}
