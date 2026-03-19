@@ -72,6 +72,11 @@ export type Product = {
   location: string | null;
   created_at: string;
   updated_at: string;
+  likes_count: number;
+  liked_by_me: boolean;
+  ratings_count: number;
+  average_rating: number;
+  my_rating: number | null;
   profiles?: {
     full_name: string | null;
     county: string | null;
@@ -79,13 +84,14 @@ export type Product = {
 };
 
 export function useMarketplaceProducts() {
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<Product[]>("/products", {}, { auth: false });
+      const data = await apiFetch<Product[]>("/products");
       setProducts(data);
     } catch (error) {
       console.error("Failed to load marketplace products from API, falling back to Supabase", error);
@@ -114,7 +120,64 @@ export function useMarketplaceProducts() {
     return () => window.removeEventListener(PRODUCTS_CHANGED_EVENT, handleProductsChanged);
   }, [load]);
 
-  return { products, loading, refetch: load };
+  const toggleLike = async (productId: string) => {
+    if (!user) {
+      toast.error("Please sign in to like products");
+      return false;
+    }
+
+    try {
+      const data = await apiFetch<{ liked: boolean; likes_count: number }>(`/products/${productId}/like`, {
+        method: "POST",
+      });
+      setProducts((prev) =>
+        prev.map((product) =>
+          product.id === productId
+            ? { ...product, liked_by_me: data.liked, likes_count: data.likes_count }
+            : product,
+        ),
+      );
+      return true;
+    } catch (error) {
+      toast.error("Failed to update like: " + (error as Error).message);
+      return false;
+    }
+  };
+
+  const rateProduct = async (productId: string, rating: number) => {
+    if (!user) {
+      toast.error("Please sign in to rate products");
+      return false;
+    }
+
+    try {
+      const data = await apiFetch<{ my_rating: number; average_rating: number; ratings_count: number }>(
+        `/products/${productId}/rate`,
+        {
+          method: "POST",
+          body: { rating } as unknown as BodyInit,
+        },
+      );
+      setProducts((prev) =>
+        prev.map((product) =>
+          product.id === productId
+            ? {
+                ...product,
+                my_rating: data.my_rating,
+                average_rating: data.average_rating,
+                ratings_count: data.ratings_count,
+              }
+            : product,
+        ),
+      );
+      return true;
+    } catch (error) {
+      toast.error("Failed to rate product: " + (error as Error).message);
+      return false;
+    }
+  };
+
+  return { products, loading, refetch: load, toggleLike, rateProduct };
 }
 
 export function useMyProducts() {

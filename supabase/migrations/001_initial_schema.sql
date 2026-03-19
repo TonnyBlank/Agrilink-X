@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS conversations (
   unread_a      int DEFAULT 0,
   unread_b      int DEFAULT 0,
   created_at    timestamptz DEFAULT now(),
+  CHECK (participant_a <> participant_b),
   UNIQUE (participant_a, participant_b)
 );
 
@@ -78,6 +79,26 @@ CREATE TABLE IF NOT EXISTS messages (
   body            text NOT NULL,
   read            boolean DEFAULT false,
   created_at      timestamptz DEFAULT now()
+);
+
+-- ─── Product Likes ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS product_likes (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id   uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  user_id      uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at   timestamptz DEFAULT now(),
+  UNIQUE (product_id, user_id)
+);
+
+-- ─── Product Ratings ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS product_ratings (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id  uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  user_id     uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  rating      int NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  created_at  timestamptz DEFAULT now(),
+  updated_at  timestamptz DEFAULT now(),
+  UNIQUE (product_id, user_id)
 );
 
 -- ─── Crop Events ─────────────────────────────────────────────────
@@ -128,6 +149,8 @@ ALTER TABLE profiles       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversations  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE product_likes  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE product_ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE crop_events    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE id_verifications ENABLE ROW LEVEL SECURITY;
 
@@ -159,14 +182,44 @@ CREATE POLICY "orders_parties_update"  ON orders FOR UPDATE  USING (buyer_id = a
 
 -- Conversations
 DROP POLICY IF EXISTS "conv_participants" ON conversations;
-CREATE POLICY "conv_participants"  ON conversations FOR ALL USING (participant_a = auth.uid() OR participant_b = auth.uid());
+CREATE POLICY "conv_participants"  ON conversations FOR ALL
+  USING (participant_a = auth.uid() OR participant_b = auth.uid())
+  WITH CHECK (
+    (participant_a = auth.uid() OR participant_b = auth.uid())
+    AND participant_a <> participant_b
+    AND participant_a < participant_b
+  );
 
 -- Messages
 DROP POLICY IF EXISTS "msg_participants_read" ON messages;
 DROP POLICY IF EXISTS "msg_sender_insert" ON messages;
 CREATE POLICY "msg_participants_read" ON messages FOR SELECT
   USING (EXISTS (SELECT 1 FROM conversations c WHERE c.id = conversation_id AND (c.participant_a = auth.uid() OR c.participant_b = auth.uid())));
-CREATE POLICY "msg_sender_insert"     ON messages FOR INSERT WITH CHECK (sender_id = auth.uid());
+CREATE POLICY "msg_sender_insert"     ON messages FOR INSERT WITH CHECK (
+  sender_id = auth.uid()
+  AND EXISTS (
+    SELECT 1
+    FROM conversations c
+    WHERE c.id = conversation_id
+      AND (c.participant_a = auth.uid() OR c.participant_b = auth.uid())
+  )
+);
+
+-- Product likes
+DROP POLICY IF EXISTS "product_likes_public_read" ON product_likes;
+DROP POLICY IF EXISTS "product_likes_owner_insert" ON product_likes;
+DROP POLICY IF EXISTS "product_likes_owner_delete" ON product_likes;
+CREATE POLICY "product_likes_public_read" ON product_likes FOR SELECT USING (true);
+CREATE POLICY "product_likes_owner_insert" ON product_likes FOR INSERT WITH CHECK (user_id = auth.uid());
+CREATE POLICY "product_likes_owner_delete" ON product_likes FOR DELETE USING (user_id = auth.uid());
+
+-- Product ratings
+DROP POLICY IF EXISTS "product_ratings_public_read" ON product_ratings;
+DROP POLICY IF EXISTS "product_ratings_owner_insert" ON product_ratings;
+DROP POLICY IF EXISTS "product_ratings_owner_update" ON product_ratings;
+CREATE POLICY "product_ratings_public_read" ON product_ratings FOR SELECT USING (true);
+CREATE POLICY "product_ratings_owner_insert" ON product_ratings FOR INSERT WITH CHECK (user_id = auth.uid());
+CREATE POLICY "product_ratings_owner_update" ON product_ratings FOR UPDATE USING (user_id = auth.uid());
 
 -- Crop events
 DROP POLICY IF EXISTS "crop_events_owner" ON crop_events;
@@ -235,3 +288,5 @@ DROP TRIGGER IF EXISTS orders_updated_at ON orders;
 CREATE TRIGGER orders_updated_at      BEFORE UPDATE ON orders      FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 DROP TRIGGER IF EXISTS crop_events_updated_at ON crop_events;
 CREATE TRIGGER crop_events_updated_at BEFORE UPDATE ON crop_events FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DROP TRIGGER IF EXISTS product_ratings_updated_at ON product_ratings;
+CREATE TRIGGER product_ratings_updated_at BEFORE UPDATE ON product_ratings FOR EACH ROW EXECUTE FUNCTION update_updated_at();

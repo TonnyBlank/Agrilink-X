@@ -25,6 +25,7 @@ import Community from "./pages/dashboard/Community";
 import Messages from "./pages/dashboard/Messages";
 import UpgradePlan from "./pages/dashboard/UpgradePlan";
 import Profile from "./pages/dashboard/Profile";
+import FarmerProfile from "./pages/dashboard/FarmerProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/dashboard/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
             <Route path="/dashboard/upgrade" element={<ProtectedRoute><UpgradePlan /></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/dashboard/farmers/:userId" element={<ProtectedRoute><FarmerProfile /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

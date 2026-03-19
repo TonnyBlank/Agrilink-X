@@ -6,7 +6,13 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ) {
-  const message = err instanceof Error ? err.message : "Internal server error";
-  console.error("[ERROR]", message);
+  const message =
+    err instanceof Error
+      ? err.message
+      : typeof err === "object" && err !== null && "message" in err && typeof err.message === "string"
+        ? err.message
+        : "Internal server error";
+
+  console.error("[ERROR]", err);
   res.status(500).json({ error: message });
 }

@@ -1,7 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import SensorSparkline from "@/components/dashboard/SensorSparkline";
-import SentinelAlertFeed from "@/components/dashboard/SentinelAlertFeed";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -20,6 +19,7 @@ import {
 import { motion } from "framer-motion";
 import { useWeather } from "@/hooks/useWeather";
 import { Link } from "react-router-dom";
+import heroFarmImage from "@/assets/hero-farm.jpg";
 
 const kpis = [
   { label: "Revenue This Week", value: "KES 45,200", delta: "+12%", icon: TrendingUp, positive: true },
@@ -27,6 +27,8 @@ const kpis = [
   { label: "Pending Orders", value: "3", delta: "", icon: ShoppingCart, positive: true },
   { label: "AI Recommendations", value: "5", delta: "New", icon: Zap, positive: true },
 ];
+
+const revenueCardLabel = "Revenue This Week";
 
 const quickActions = [
   {
@@ -56,9 +58,26 @@ const quickActions = [
 ];
 
 const marketSignals = [
-  { crop: "Tomatoes", trend: "Hot demand", detail: "Urban buyers are paying 14% above last week." },
-  { crop: "Maize", trend: "Stable", detail: "Hold inventory and watch western counties for movement." },
-  { crop: "Onions", trend: "Opportunity", detail: "Regional supply is tightening ahead of next market day." },
+  {
+    crop: "Tomatoes",
+    trend: "Hot demand",
+    detail: "Urban buyers are paying 14% above last week.",
+    image:
+      "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    crop: "Maize",
+    trend: "Stable",
+    detail: "Hold inventory and watch western counties for movement.",
+    image: heroFarmImage,
+  },
+  {
+    crop: "Onions",
+    trend: "Opportunity",
+    detail: "Regional supply is tightening ahead of next market day.",
+    image:
+      "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=900&q=80",
+  },
 ];
 
 const weatherCodeDesc = (code: number): string => {
@@ -97,7 +116,7 @@ export default function DashboardHome() {
           className="rounded-[2rem] border border-primary/15 bg-[radial-gradient(circle_at_top_left,_hsl(var(--primary)/0.18),_transparent_40%),linear-gradient(135deg,_hsl(var(--background)),_hsl(var(--primary)/0.06))] p-6 shadow-card"
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="space-y-3 max-w-2xl">
+            <div className="max-w-2xl space-y-3">
               <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
                 {planLabel}
               </span>
@@ -110,18 +129,51 @@ export default function DashboardHome() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 min-w-[220px]">
-              <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Field Status</p>
-                <p className="mt-2 text-lg font-display font-bold text-foreground">Healthy</p>
-                <p className="text-xs text-primary">Sensors reporting normally</p>
-              </div>
-              <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Buyer Activity</p>
-                <p className="mt-2 text-lg font-display font-bold text-foreground">9 chats</p>
-                <p className="text-xs text-primary">3 need a reply today</p>
-              </div>
-            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {kpis.map((kpi, i) => (
+              <motion.div
+                key={kpi.label}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.05 }}
+                className={`rounded-[1.75rem] p-5 shadow-sm ${
+                  kpi.label === revenueCardLabel
+                    ? "border border-emerald-300/70 bg-[radial-gradient(circle_at_top_left,_rgb(52_211_153_/_0.42),_transparent_42%),linear-gradient(145deg,_rgb(240_253_244),_rgb(209_250_229))] shadow-[0_22px_44px_-26px_rgb(22_163_74_/_0.9)]"
+                    : "border border-border/70 bg-background/80"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                      kpi.label === revenueCardLabel
+                        ? "bg-emerald-500/20 ring-1 ring-emerald-400/50 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.55)]"
+                        : "bg-primary/10"
+                    }`}
+                  >
+                    <kpi.icon className={`h-5 w-5 ${kpi.label === revenueCardLabel ? "text-emerald-700" : "text-primary"}`} />
+                  </div>
+                </div>
+                <p className={`text-xs font-medium ${kpi.label === revenueCardLabel ? "text-emerald-800/80" : "text-muted-foreground"}`}>
+                  {kpi.label}
+                </p>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <span className={`text-xl font-display font-bold ${kpi.label === revenueCardLabel ? "text-emerald-800" : "text-foreground"}`}>
+                    {kpi.value}
+                  </span>
+                  {kpi.delta && (
+                    <span
+                      className={`text-xs font-semibold ${
+                        kpi.positive ? (kpi.label === revenueCardLabel ? "text-emerald-700" : "text-primary") : "text-destructive"
+                      }`}
+                    >
+                      {kpi.delta}
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            ))}
           </div>
         </motion.section>
 
@@ -229,36 +281,6 @@ export default function DashboardHome() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {kpis.map((kpi, i) => (
-            <motion.div
-              key={kpi.label}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.05 }}
-              className="bento-card"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <kpi.icon className="w-5 h-5 text-primary" />
-                </div>
-              </div>
-              <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-xl font-display font-bold text-foreground">{kpi.value}</span>
-                {kpi.delta && (
-                  <span className={`text-xs font-semibold ${kpi.positive ? "text-primary" : "text-destructive"}`}>
-                    {kpi.delta}
-                  </span>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        <SentinelAlertFeed />
-      </div>
-
       <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-4 mb-6">
         <motion.section
           initial={{ opacity: 0, y: 10 }}
@@ -275,12 +297,29 @@ export default function DashboardHome() {
               <Link to="/dashboard/marketplace">Open marketplace</Link>
             </Button>
           </div>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {marketSignals.map((signal) => (
-              <div key={signal.crop} className="rounded-2xl border border-border bg-background/70 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-primary">{signal.trend}</p>
-                <p className="mt-2 text-lg font-display font-bold text-foreground">{signal.crop}</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{signal.detail}</p>
+              <div
+                key={signal.crop}
+                className="group overflow-hidden rounded-[1.75rem] border border-border bg-background/80 shadow-sm"
+              >
+                <div className="relative h-40 overflow-hidden">
+                  <img
+                    src={signal.image}
+                    alt={signal.crop}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+                  <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700 backdrop-blur">
+                    {signal.trend}
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <p className="font-display text-2xl font-bold text-white">{signal.crop}</p>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-sm leading-relaxed text-muted-foreground">{signal.detail}</p>
+                </div>
               </div>
             ))}
           </div>

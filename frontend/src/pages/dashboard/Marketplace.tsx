@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { BadgeCheck, MapPin, MessageCircle, PackageCheck, PlayCircle, Search, ShoppingCart, Sprout, Star, Video } from "lucide-react";
+import { BadgeCheck, Heart, MapPin, MessageCircle, PackageCheck, PlayCircle, Search, ShoppingCart, Sprout, Star, Video } from "lucide-react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { useMarketplaceProducts } from "@/hooks/useProducts";
 import { useOrders } from "@/hooks/useOrders";
@@ -15,7 +15,7 @@ import { toast } from "sonner";
 const categories = ["All", "Vegetables", "Fruits", "Grains", "Dairy", "Poultry", "Herbs"];
 
 export default function Marketplace() {
-  const { products, loading } = useMarketplaceProducts();
+  const { products, loading, toggleLike, rateProduct } = useMarketplaceProducts();
   const { placeOrder } = useOrders();
   const { user } = useAuth();
   const [search, setSearch] = useState("");
@@ -53,11 +53,25 @@ export default function Marketplace() {
     };
   }, [products]);
 
+  const syncedSelectedProduct = useMemo(() => {
+    if (!selectedProduct) return null;
+    return products.find((product) => product.id === selectedProduct.id) ?? selectedProduct;
+  }, [products, selectedProduct]);
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+    const nextSelected = products.find((product) => product.id === selectedProduct.id);
+    if (nextSelected) {
+      setSelectedProduct(nextSelected);
+    }
+  }, [products, selectedProduct]);
+
   const parsedQuantity = Math.max(1, Number(quantity) || 1);
-  const total = selectedProduct ? selectedProduct.price_per_unit * parsedQuantity + 50 : 0;
+  const total = syncedSelectedProduct ? syncedSelectedProduct.price_per_unit * parsedQuantity + 50 : 0;
+  const ratingChoices = [1, 2, 3, 4, 5];
 
   const handleBuy = async () => {
-    if (!selectedProduct) return;
+    if (!syncedSelectedProduct) return;
     if (!user) {
       toast.error("Please sign in before placing an order.");
       return;
@@ -65,11 +79,11 @@ export default function Marketplace() {
 
     setIsCheckingOut(true);
     const success = await placeOrder({
-      product_id: selectedProduct.id,
-      farmer_id: selectedProduct.farmer_id,
+      product_id: syncedSelectedProduct.id,
+      farmer_id: syncedSelectedProduct.farmer_id,
       quantity: parsedQuantity,
-      unit: selectedProduct.unit,
-      total_price: selectedProduct.price_per_unit * parsedQuantity,
+      unit: syncedSelectedProduct.unit,
+      total_price: syncedSelectedProduct.price_per_unit * parsedQuantity,
       delivery_fee: 50,
     });
     setIsCheckingOut(false);
@@ -211,6 +225,18 @@ export default function Marketplace() {
                       <span>{product.profiles?.full_name || "Verified farmer"}</span>
                     </div>
 
+                    <div className="flex items-center justify-between gap-3 rounded-2xl bg-muted/35 px-3 py-2 text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Heart className={`h-4 w-4 ${product.liked_by_me ? "fill-rose-500 text-rose-500" : ""}`} />
+                        <span>{product.likes_count}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                        <span>{product.average_rating ? product.average_rating.toFixed(1) : "New"}</span>
+                        <span className="text-xs">({product.ratings_count})</span>
+                      </div>
+                    </div>
+
                     {product.description && (
                       <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">{product.description}</p>
                     )}
@@ -218,9 +244,7 @@ export default function Marketplace() {
                     <div className="grid grid-cols-3 gap-3 rounded-[1.5rem] bg-muted/50 p-3">
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Price</p>
-                        <p className="mt-1 font-display text-lg font-bold text-primary">
-                          KES {product.price_per_unit}
-                        </p>
+                        <p className="mt-1 font-display text-lg font-bold text-primary">KES {product.price_per_unit}</p>
                       </div>
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Unit</p>
@@ -234,7 +258,15 @@ export default function Marketplace() {
                   </div>
                 </button>
 
-                <div className="px-5 pb-5">
+                <div className="flex gap-2 px-5 pb-5">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-xl px-4"
+                    onClick={() => void toggleLike(product.id)}
+                  >
+                    <Heart className={`h-4 w-4 ${product.liked_by_me ? "fill-rose-500 text-rose-500" : ""}`} />
+                  </Button>
                   <Button
                     onClick={() => setSelectedProduct(product)}
                     className="w-full rounded-xl bg-primary/10 text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
@@ -260,37 +292,37 @@ export default function Marketplace() {
       <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
         <DialogContent className="max-h-[92vh] overflow-y-auto rounded-[2rem] sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle className="font-display text-center text-2xl">{selectedProduct?.name}</DialogTitle>
+            <DialogTitle className="font-display text-center text-2xl">{syncedSelectedProduct?.name}</DialogTitle>
             <DialogDescription className="text-center">
-              Buy directly from {selectedProduct?.profiles?.full_name || "the farmer"} and review the listing media before checkout.
+              Buy directly from {syncedSelectedProduct?.profiles?.full_name || "the farmer"} and review the listing media before checkout.
             </DialogDescription>
           </DialogHeader>
 
-          {selectedProduct && (
+          {syncedSelectedProduct && (
             <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
               <div className="space-y-4">
-                {selectedProduct.video_url ? (
+                {syncedSelectedProduct.video_url ? (
                   <div className="mx-auto max-w-lg overflow-hidden rounded-[1.75rem] border border-border bg-slate-950 shadow-lg">
-                    <video src={selectedProduct.video_url} controls className="aspect-video max-h-[240px] w-full object-contain" />
+                    <video src={syncedSelectedProduct.video_url} controls className="aspect-video max-h-[240px] w-full object-contain" />
                   </div>
                 ) : (
                   <div className="flex aspect-video items-center justify-center rounded-[1.75rem] border border-border bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.28),_transparent_42%),linear-gradient(135deg,rgba(236,253,245,1),rgba(255,255,255,0.92))] text-8xl">
-                    {selectedProduct.image_emoji || "🌾"}
+                    {syncedSelectedProduct.image_emoji || "🌾"}
                   </div>
                 )}
 
                 <div className="rounded-[1.5rem] border border-border bg-muted/40 p-4">
                   <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted-foreground">{selectedProduct.category}</span>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted-foreground">{syncedSelectedProduct.category}</span>
                     <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted-foreground">
-                      {selectedProduct.stock} {selectedProduct.unit} available
+                      {syncedSelectedProduct.stock} {syncedSelectedProduct.unit} available
                     </span>
-                    {selectedProduct.is_organic && (
+                    {syncedSelectedProduct.is_organic && (
                       <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Organic produce</span>
                     )}
                   </div>
                   <p className="mt-4 text-sm leading-7 text-muted-foreground">
-                    {selectedProduct.description || "This seller has not added a description yet, but you can message them directly before ordering."}
+                    {syncedSelectedProduct.description || "This seller has not added a description yet, but you can message them directly before ordering."}
                   </p>
                 </div>
               </div>
@@ -300,21 +332,65 @@ export default function Marketplace() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Seller</p>
-                      <p className="font-display text-xl font-bold text-foreground">{selectedProduct.profiles?.full_name || "Farmer"}</p>
+                      <p className="font-display text-xl font-bold text-foreground">{syncedSelectedProduct.profiles?.full_name || "Farmer"}</p>
                     </div>
                     <div className="rounded-2xl bg-emerald-50 p-3">
                       <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
                     </div>
                   </div>
 
+                  <div className="mt-5 rounded-2xl bg-muted/35 p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Heart className={`h-4 w-4 ${syncedSelectedProduct.liked_by_me ? "fill-rose-500 text-rose-500" : ""}`} />
+                        <span>{syncedSelectedProduct.likes_count} likes</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                        <span>{syncedSelectedProduct.average_rating ? syncedSelectedProduct.average_rating.toFixed(1) : "New"}</span>
+                        <span>({syncedSelectedProduct.ratings_count} ratings)</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-xl"
+                        onClick={() => void toggleLike(syncedSelectedProduct.id)}
+                      >
+                        <Heart className={`mr-2 h-4 w-4 ${syncedSelectedProduct.liked_by_me ? "fill-rose-500 text-rose-500" : ""}`} />
+                        {syncedSelectedProduct.liked_by_me ? "Liked" : "Like"}
+                      </Button>
+                      <div className="flex items-center gap-1">
+                        {ratingChoices.map((rating) => (
+                          <button
+                            key={rating}
+                            type="button"
+                            onClick={() => void rateProduct(syncedSelectedProduct.id, rating)}
+                            className="rounded-full p-1 transition-transform hover:scale-110"
+                            aria-label={`Rate ${rating} stars`}
+                          >
+                            <Star
+                              className={`h-5 w-5 ${
+                                (syncedSelectedProduct.my_rating ?? 0) >= rating
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "text-muted-foreground"
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="mt-5 space-y-3 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Location</span>
-                      <span className="font-medium text-foreground">{selectedProduct.location || selectedProduct.profiles?.county || "Unknown county"}</span>
+                      <span className="font-medium text-foreground">{syncedSelectedProduct.location || syncedSelectedProduct.profiles?.county || "Unknown county"}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Unit price</span>
-                      <span className="font-medium text-foreground">KES {selectedProduct.price_per_unit}</span>
+                      <span className="font-medium text-foreground">KES {syncedSelectedProduct.price_per_unit}</span>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="quantity">Quantity</Label>

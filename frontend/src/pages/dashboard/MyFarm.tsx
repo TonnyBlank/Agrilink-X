@@ -424,7 +424,7 @@ export default function MyFarm() {
       </div>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem]">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl rounded-[2rem]">
           <DialogHeader>
             <DialogTitle className="font-display text-xl">Edit Farm Profile</DialogTitle>
             <DialogDescription>Update your farm details to build trust with buyers.</DialogDescription>

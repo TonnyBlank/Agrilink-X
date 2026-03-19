@@ -14,6 +14,7 @@ export type Conversation = {
   unread_b: number;
   created_at: string;
   other_name?: string;
+  other_photo_url?: string | null;
 };
 
 export type Message = {
@@ -32,6 +33,7 @@ export function useMessages(activeConversationId: string | null) {
   const [loadingConvs, setLoadingConvs] = useState(true);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const conversationsChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const loadConversations = useCallback(async () => {
     if (!user) return;
@@ -47,14 +49,18 @@ export function useMessages(activeConversationId: string | null) {
               : conversation.participant_a;
 
           try {
-            const profile = await apiFetch<{ full_name: string | null }>(
+            const profile = await apiFetch<{ full_name: string | null; photo_url: string | null }>(
               `/profiles/${otherId}`,
               {},
               { auth: false },
             );
-            return { ...conversation, other_name: profile.full_name || "Unknown" };
+            return {
+              ...conversation,
+              other_name: profile.full_name || "Unknown",
+              other_photo_url: profile.photo_url || null,
+            };
           } catch {
-            return { ...conversation, other_name: "Unknown" };
+            return { ...conversation, other_name: "Unknown", other_photo_url: null };
           }
         }),
       );
@@ -95,6 +101,31 @@ export function useMessages(activeConversationId: string | null) {
   }, [loadMessages]);
 
   useEffect(() => {
+    if (!user) return;
+
+    conversationsChannelRef.current = supabase
+      .channel(`conversations-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "conversations",
+        },
+        () => {
+          void loadConversations();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      if (conversationsChannelRef.current) {
+        void supabase.removeChannel(conversationsChannelRef.current);
+      }
+    };
+  }, [loadConversations, user]);
+
+  useEffect(() => {
     if (!activeConversationId) return;
 
     channelRef.current = supabase
@@ -108,7 +139,12 @@ export function useMessages(activeConversationId: string | null) {
           filter: `conversation_id=eq.${activeConversationId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+          setMessages((prev) => {
+            if (prev.some((item) => item.id === payload.new.id)) {
+              return prev;
+            }
+            return [...prev, payload.new as Message];
+          });
         },
       )
       .subscribe();
@@ -120,13 +156,32 @@ export function useMessages(activeConversationId: string | null) {
     };
   }, [activeConversationId]);
 
+  useEffect(() => {
+    if (!user || !activeConversationId) return;
+
+    setConversations((prev) =>
+      prev.map((conversation) => {
+        if (conversation.id !== activeConversationId) return conversation;
+        return conversation.participant_a === user.id
+          ? { ...conversation, unread_a: 0 }
+          : { ...conversation, unread_b: 0 };
+      }),
+    );
+  }, [activeConversationId, user]);
+
   const sendMessage = async (body: string) => {
     if (!user || !activeConversationId || !body.trim()) return;
 
     try {
-      await apiFetch<Message>(`/messages/conversations/${activeConversationId}/send`, {
+      const message = await apiFetch<Message>(`/messages/conversations/${activeConversationId}/send`, {
         method: "POST",
         body: { body: body.trim() } as unknown as BodyInit,
+      });
+      setMessages((prev) => {
+        if (prev.some((item) => item.id === message.id)) {
+          return prev;
+        }
+        return [...prev, message];
       });
       await loadConversations();
     } catch (error) {
@@ -145,8 +200,28 @@ export function useMessages(activeConversationId: string | null) {
       await loadConversations();
       return conversation.id;
     } catch (error) {
-      toast.error("Could not start conversation");
+      const message = error instanceof Error ? error.message : "Could not start conversation";
+      toast.error(message);
       return null;
+    }
+  };
+
+  const deleteConversation = async (conversationId: string) => {
+    if (!user) return false;
+
+    try {
+      await apiFetch<void>(`/messages/conversations/${conversationId}`, {
+        method: "DELETE",
+      });
+      setConversations((prev) => prev.filter((conversation) => conversation.id !== conversationId));
+      if (activeConversationId === conversationId) {
+        setMessages([]);
+      }
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not delete conversation";
+      toast.error(message);
+      return false;
     }
   };
 
@@ -157,6 +232,7 @@ export function useMessages(activeConversationId: string | null) {
     loadingMsgs,
     sendMessage,
     startConversation,
+    deleteConversation,
     refetch: loadConversations,
   };
 }

@@ -43,6 +43,46 @@ router.get("/me", authenticate, async (req: AuthRequest, res) => {
   res.json({ profile: data, role });
 });
 
+router.get("/farmers", authenticate, async (req: AuthRequest, res) => {
+  const supabase = req.supabase!;
+  const query = typeof req.query.q === "string" ? req.query.q.trim().toLowerCase() : "";
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("user_id, full_name, county, farm_size, main_crops, bio, photo_url")
+    .neq("user_id", req.userId!)
+    .order("updated_at", { ascending: false })
+    .limit(50);
+
+  if (error) throw error;
+
+  const filtered = (data ?? []).filter((profile) => {
+    const hasFarmerSignals =
+      Boolean(profile.farm_size) ||
+      Boolean(profile.county) ||
+      Boolean(profile.bio) ||
+      Boolean(profile.main_crops?.length);
+
+    if (!hasFarmerSignals) return false;
+    if (!query) return true;
+
+    const haystack = [
+      profile.full_name,
+      profile.county,
+      profile.farm_size,
+      profile.bio,
+      ...(profile.main_crops ?? []),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes(query);
+  });
+
+  res.json(filtered);
+});
+
 router.get("/:userId", async (req, res) => {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
@@ -53,7 +93,18 @@ router.get("/:userId", async (req, res) => {
 
   if (error) throw error;
   if (!data) return res.status(404).json({ error: "Profile not found" });
-  res.json(data);
+
+  const { data: videoProduct, error: videoError } = await supabase
+    .from("products")
+    .select("video_url")
+    .eq("farmer_id", req.params.userId)
+    .not("video_url", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (videoError) throw videoError;
+  res.json({ ...data, video_url: videoProduct?.video_url || null });
 });
 
 router.patch("/me", authenticate, async (req: AuthRequest, res) => {
