@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { getStoredRole } from "@/lib/subscription";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://agrilink-x.onrender.com/api";
 
 export class ApiError extends Error {
   status: number;
