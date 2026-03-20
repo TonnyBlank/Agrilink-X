@@ -251,7 +251,7 @@ export default function MyFarm() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            <div className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.2)]">
+            <div className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.2)] dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.55)]">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
                   <h3 className="font-display text-2xl font-bold text-foreground">Farm Profile</h3>
@@ -311,7 +311,7 @@ export default function MyFarm() {
                 </div>
               </div>
 
-              <div className="mt-5 rounded-2xl bg-[linear-gradient(135deg,rgba(236,253,245,0.9),rgba(255,255,255,0.95))] p-4">
+              <div className="mt-5 rounded-2xl bg-[linear-gradient(135deg,rgba(236,253,245,0.9),rgba(255,255,255,0.95))] p-4 dark:bg-[linear-gradient(135deg,rgba(16,185,129,0.12),rgba(15,23,42,0.92))]">
                 <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">About the Farm</p>
                 <p className="mt-2 text-sm leading-7 text-foreground">
                   {profile?.bio || "Add a short story about your farm, your growing methods, and what makes your produce special."}
@@ -323,7 +323,7 @@ export default function MyFarm() {
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Crop Focus</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {topCrops.map((crop) => (
-                      <span key={crop} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                      <span key={crop} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
                         {crop}
                       </span>
                     ))}
@@ -332,7 +332,7 @@ export default function MyFarm() {
               )}
             </div>
 
-            <div className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.2)]">
+            <div className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.2)] dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.55)]">
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <h3 className="font-display text-xl font-bold text-foreground">Farm Location Map</h3>
@@ -342,7 +342,7 @@ export default function MyFarm() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="rounded-[1.5rem] border border-emerald-200/70 bg-[linear-gradient(135deg,rgba(236,253,245,0.95),rgba(255,255,255,0.95))] p-5">
+                <div className="rounded-[1.5rem] border border-emerald-200/70 bg-[linear-gradient(135deg,rgba(236,253,245,0.95),rgba(255,255,255,0.95))] p-5 dark:border-emerald-500/30 dark:bg-[linear-gradient(135deg,rgba(16,185,129,0.12),rgba(15,23,42,0.92))]">
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Primary Area</p>
                   <p className="mt-2 font-display text-2xl font-bold text-foreground">{profile?.county || "County not set"}</p>
                   <p className="mt-2 text-sm text-muted-foreground">
@@ -353,15 +353,15 @@ export default function MyFarm() {
                 <div className="rounded-[1.5rem] border border-border bg-muted/30 p-5">
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Location Snapshot</p>
                   <div className="mt-4 space-y-3 text-sm text-foreground">
-                    <div className="flex items-center justify-between rounded-xl bg-white/80 px-4 py-3">
+                    <div className="flex items-center justify-between rounded-xl bg-white/80 px-4 py-3 dark:bg-background/70">
                       <span className="text-muted-foreground">County</span>
                       <span className="font-semibold">{profile?.county || "Not set"}</span>
                     </div>
-                    <div className="flex items-center justify-between rounded-xl bg-white/80 px-4 py-3">
+                    <div className="flex items-center justify-between rounded-xl bg-white/80 px-4 py-3 dark:bg-background/70">
                       <span className="text-muted-foreground">Sub-county</span>
                       <span className="font-semibold">{subCounty || "Not set"}</span>
                     </div>
-                    <div className="flex items-center justify-between rounded-xl bg-white/80 px-4 py-3">
+                    <div className="flex items-center justify-between rounded-xl bg-white/80 px-4 py-3 dark:bg-background/70">
                       <span className="text-muted-foreground">Farm size</span>
                       <span className="font-semibold">{profile?.farm_size || "Not set"}</span>
                     </div>
@@ -377,7 +377,7 @@ export default function MyFarm() {
             transition={{ delay: 0.08 }}
             className="space-y-6"
           >
-            <div className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.2)]">
+            <div className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.2)] dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.55)]">
               <h3 className="font-display text-xl font-bold text-foreground">Farm Readiness</h3>
               <p className="mt-1 text-sm text-muted-foreground">Complete these details to make your farm profile stronger.</p>
               <div className="mt-5 space-y-3">
@@ -396,7 +396,7 @@ export default function MyFarm() {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.2)]">
+            <div className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.2)] dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.55)]">
               <h3 className="font-display text-xl font-bold text-foreground">Listing Summary</h3>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-muted/40 p-4 text-center">
@@ -422,7 +422,7 @@ export default function MyFarm() {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-emerald-200/70 bg-[linear-gradient(135deg,rgba(236,253,245,0.95),rgba(255,255,255,0.95))] p-6 shadow-[0_18px_40px_-24px_rgba(16,185,129,0.2)]">
+            <div className="rounded-[2rem] border border-emerald-200/70 bg-[linear-gradient(135deg,rgba(236,253,245,0.95),rgba(255,255,255,0.95))] p-6 shadow-[0_18px_40px_-24px_rgba(16,185,129,0.2)] dark:border-emerald-500/30 dark:bg-[linear-gradient(135deg,rgba(16,185,129,0.14),rgba(15,23,42,0.94))] dark:shadow-[0_18px_40px_-24px_rgba(16,185,129,0.25)]">
               <h3 className="font-display text-xl font-bold text-foreground">What Buyers Want</h3>
               <div className="mt-4 space-y-3 text-sm text-muted-foreground">
                 <p>Keep your county and farm size filled in so your profile feels trustworthy.</p>
@@ -505,7 +505,7 @@ export default function MyFarm() {
               <Label htmlFor="main_crops">Main Crops</Label>
               <div className="grid grid-cols-1 gap-3 rounded-2xl border border-border bg-muted/20 p-4 sm:grid-cols-2">
                 {cropOptions.map((crop) => (
-                  <label key={crop} className="flex items-center gap-3 rounded-xl bg-white/80 px-3 py-2 text-sm">
+                  <label key={crop} className="flex items-center gap-3 rounded-xl bg-white/80 px-3 py-2 text-sm dark:bg-background/70">
                     <Checkbox checked={selectedCropValues.includes(crop)} onCheckedChange={() => toggleCrop(crop)} />
                     <span className="font-medium text-foreground">{crop}</span>
                   </label>

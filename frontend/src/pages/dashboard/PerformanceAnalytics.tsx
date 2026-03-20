@@ -277,7 +277,7 @@ export default function PerformanceAnalytics() {
               <h3 className="font-display font-bold text-foreground text-sm">Weekly Order Volume</h3>
               <p className="text-xs text-muted-foreground">Last 4 weeks based on all incoming selling orders.</p>
             </div>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-semibold text-emerald-700">
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
               {analytics.totalListings} active listings
             </span>
           </div>

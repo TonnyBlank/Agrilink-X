@@ -202,16 +202,16 @@ export default function MyProducts() {
         </section>
 
         {!profileReadyToSell && (
-          <div className="rounded-[1.5rem] border border-amber-300/70 bg-amber-50/80 p-4">
+          <div className="rounded-[1.5rem] border border-amber-300/70 bg-amber-50/80 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
             <p className="text-sm font-semibold text-amber-900">Complete your profile before you upload and sell.</p>
             <p className="mt-1 text-sm text-amber-800">
               Missing: {missingProfileFields.join(", ")}.
             </p>
             <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-              <Button asChild variant="outline" className="rounded-xl border-amber-300 bg-white text-amber-900 hover:bg-amber-100">
+              <Button asChild variant="outline" className="rounded-xl border-amber-300 bg-white text-amber-900 hover:bg-amber-100 dark:border-amber-500/30 dark:bg-background/70 dark:text-amber-100 dark:hover:bg-amber-500/10">
                 <Link to="/dashboard/farm">Complete Farm Profile</Link>
               </Button>
-              <Button asChild variant="outline" className="rounded-xl border-amber-300 bg-white text-amber-900 hover:bg-amber-100">
+              <Button asChild variant="outline" className="rounded-xl border-amber-300 bg-white text-amber-900 hover:bg-amber-100 dark:border-amber-500/30 dark:bg-background/70 dark:text-amber-100 dark:hover:bg-amber-500/10">
                 <Link to="/dashboard/profile">Complete Personal & Payout Details</Link>
               </Button>
             </div>
@@ -374,13 +374,13 @@ export default function MyProducts() {
                   <p className="text-xs text-muted-foreground">This image is the cover photo buyers see in the marketplace.</p>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-dashed border-emerald-300/80 bg-emerald-50/60 p-4">
+                <div className="rounded-[1.5rem] border border-dashed border-emerald-300/80 bg-emerald-50/60 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                       <p className="font-medium text-foreground">Upload a cover image</p>
                       <p className="text-sm text-muted-foreground">JPG, PNG, or WebP. Use a clear product photo that can act as the listing thumbnail.</p>
                     </div>
-                    <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100">
+                    <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-background/70 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
                       <ImagePlus className="mr-2 h-4 w-4" />
                       Choose Cover
                       <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleImageChange} />
@@ -388,7 +388,7 @@ export default function MyProducts() {
                   </div>
 
                   {(imagePreview || newProduct.cover_image_url) && (
-                    <div className="mx-auto mt-4 max-w-xl overflow-hidden rounded-[1.25rem] border border-emerald-200 bg-white">
+                    <div className="mx-auto mt-4 max-w-xl overflow-hidden rounded-[1.25rem] border border-emerald-200 bg-white dark:border-emerald-500/30 dark:bg-card">
                       <img
                         src={imagePreview || newProduct.cover_image_url}
                         alt="Product cover preview"
@@ -398,13 +398,13 @@ export default function MyProducts() {
                   )}
                 </div>
 
-                <div className="rounded-[1.5rem] border border-dashed border-emerald-300/80 bg-emerald-50/60 p-4">
+                <div className="rounded-[1.5rem] border border-dashed border-emerald-300/80 bg-emerald-50/60 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                       <p className="font-medium text-foreground">Upload a product video</p>
                       <p className="text-sm text-muted-foreground">MP4, MOV, or WebM up to 100MB. After publish, this video is shown to everyone in the marketplace so they can buy from you.</p>
                     </div>
-                    <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100">
+                    <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-background/70 dark:text-emerald-300 dark:hover:bg-emerald-500/10">
                       <Upload className="mr-2 h-4 w-4" />
                       Choose Video
                       <input type="file" accept="video/mp4,video/quicktime,video/webm" className="hidden" onChange={handleVideoChange} />
@@ -468,7 +468,7 @@ export default function MyProducts() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.04 }}
-                className="overflow-hidden rounded-lg border border-border/70 bg-white/80 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] backdrop-blur"
+                className="overflow-hidden rounded-lg border border-border/70 bg-white/80 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.6)]"
               >
                 {product.cover_image_url ? (
                     <div className="relative">
@@ -485,7 +485,7 @@ export default function MyProducts() {
                       </div>
                     </div>
                 ) : (
-                  <div className="flex aspect-[4/3] items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_42%),linear-gradient(135deg,rgba(236,253,245,1),rgba(240,253,250,0.7))] text-6xl">
+                  <div className="flex aspect-[4/3] items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_42%),linear-gradient(135deg,rgba(236,253,245,1),rgba(240,253,250,0.7))] text-6xl dark:bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_42%),linear-gradient(135deg,rgba(15,23,42,0.96),rgba(17,24,39,0.94))]">
                     {product.image_emoji || "🌾"}
                   </div>
                 )}
@@ -497,7 +497,7 @@ export default function MyProducts() {
                       <p className="mt-1 text-xs text-muted-foreground">{product.category}</p>
                     </div>
                     {product.is_organic && (
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
                         Organic
                       </span>
                     )}
@@ -551,7 +551,7 @@ export default function MyProducts() {
             ))}
 
             {!products.length && (
-              <div className="col-span-full rounded-[2rem] border border-dashed border-border bg-white/75 py-16 text-center shadow-sm">
+              <div className="col-span-full rounded-[2rem] border border-dashed border-border bg-white/75 py-16 text-center shadow-sm dark:bg-card/80">
                 <Package className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">You have not listed any products yet.</p>
               </div>

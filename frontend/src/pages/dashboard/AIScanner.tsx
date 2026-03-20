@@ -93,7 +93,7 @@ function ProGate() {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative max-w-lg overflow-hidden rounded-[2.25rem] border border-emerald-200/60 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_40%),linear-gradient(135deg,rgba(255,255,255,0.98),rgba(236,253,245,0.92))] p-10 text-center shadow-[0_25px_80px_-40px_rgba(5,150,105,0.5)]"
+        className="relative max-w-lg overflow-hidden rounded-[2.25rem] border border-emerald-200/60 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_40%),linear-gradient(135deg,rgba(255,255,255,0.98),rgba(236,253,245,0.92))] p-10 text-center shadow-[0_25px_80px_-40px_rgba(5,150,105,0.5)] dark:border-emerald-500/30 dark:bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_40%),linear-gradient(135deg,rgba(15,23,42,0.97),rgba(17,24,39,0.96))]"
       >
         <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-emerald-100 text-primary shadow-inner">
           <Lock className="h-10 w-10" />
@@ -103,11 +103,11 @@ function ProGate() {
           Upgrade to Pro for faster diagnostics, treatment suggestions, and a cleaner field-health workflow built for daily scouting.
         </p>
         <div className="mt-6 grid gap-3 text-left text-sm text-muted-foreground sm:grid-cols-2">
-          <div className="rounded-2xl border border-white/70 bg-white/75 p-4">
+          <div className="rounded-2xl border border-white/70 bg-white/75 p-4 dark:border-white/10 dark:bg-background/60">
             <p className="font-semibold text-foreground">Instant diagnosis</p>
             <p className="mt-1">Identify likely crop diseases from a field image in seconds.</p>
           </div>
-          <div className="rounded-2xl border border-white/70 bg-white/75 p-4">
+          <div className="rounded-2xl border border-white/70 bg-white/75 p-4 dark:border-white/10 dark:bg-background/60">
             <p className="font-semibold text-foreground">Treatment guidance</p>
             <p className="mt-1">Get a practical next-step plan and prevention reminders.</p>
           </div>
@@ -504,7 +504,7 @@ function ScannerLab() {
             <div className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">AI Ready</div>
           </div>
 
-          <div className="relative flex min-h-[380px] items-center justify-center overflow-hidden bg-[#f5f7f6] p-6">
+          <div className="relative flex min-h-[380px] items-center justify-center overflow-hidden bg-[#f5f7f6] p-6 dark:bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(17,24,39,0.98))]">
             {cameraOpen ? (
               <div className="w-full max-w-2xl text-center">
                 <div className="overflow-hidden rounded-[1.5rem] border border-emerald-200 bg-black shadow-md">
@@ -534,13 +534,13 @@ function ScannerLab() {
                     <div className="sensor-pulse h-4 w-4 rounded-full bg-primary" />
                   </div>
                 </div>
-                <div className="absolute bottom-8 rounded-full bg-white/85 px-4 py-2 text-sm font-medium text-emerald-700 shadow-lg backdrop-blur">
+                <div className="absolute bottom-8 rounded-full bg-white/85 px-4 py-2 text-sm font-medium text-emerald-700 shadow-lg backdrop-blur dark:bg-background/85 dark:text-emerald-300">
                   Analyzing crop image...
                 </div>
               </>
             ) : selectedImage ? (
               <div className="w-full max-w-2xl text-center">
-                <img src={selectedImage} alt="Selected crop" className="mx-auto aspect-video w-full rounded-[1.5rem] border border-emerald-200 bg-white object-cover shadow-md" />
+                <img src={selectedImage} alt="Selected crop" className="mx-auto aspect-video w-full rounded-[1.5rem] border border-emerald-200 bg-white object-cover shadow-md dark:border-emerald-500/30 dark:bg-card" />
                 <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                   <Button onClick={startScan} className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
                     <ScanLine className="mr-2 h-4 w-4" /> Start Diagnosis
@@ -577,7 +577,7 @@ function ScannerLab() {
           <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)]"
+            className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.55)]"
           >
             <div className="mb-4 flex items-center gap-3">
               <div className="rounded-2xl bg-emerald-100 p-3 text-primary">
@@ -618,7 +618,7 @@ function ScannerLab() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="rounded-[1.5rem] border border-emerald-200/80 bg-white p-5 shadow-sm">
+                  <div className="rounded-[1.5rem] border border-emerald-200/80 bg-white p-5 shadow-sm dark:border-emerald-500/30 dark:bg-background/70">
                     <div className="flex items-center gap-3">
                       <ScanLine className="h-5 w-5 text-emerald-600" />
                       <div>
@@ -638,7 +638,7 @@ function ScannerLab() {
                     </div>
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-emerald-200/80 bg-white p-5 shadow-sm">
+                  <div className="rounded-[1.5rem] border border-emerald-200/80 bg-white p-5 shadow-sm dark:border-emerald-500/30 dark:bg-background/70">
                     <div className="flex items-center gap-3">
                       <Leaf className="h-5 w-5 text-emerald-600" />
                       <div>
@@ -658,7 +658,7 @@ function ScannerLab() {
                     </div>
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-emerald-200/80 bg-white p-5 shadow-sm">
+                  <div className="rounded-[1.5rem] border border-emerald-200/80 bg-white p-5 shadow-sm dark:border-emerald-500/30 dark:bg-background/70">
                     <div className="flex items-center gap-3">
                       <ShieldCheck className="h-5 w-5 text-emerald-600" />
                       <div>
@@ -694,7 +694,7 @@ function ScannerLab() {
           </motion.section>
 
           <section className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[1.75rem] border border-border/70 bg-white/85 p-5 shadow-sm">
+            <div className="rounded-[1.75rem] border border-border/70 bg-white/85 p-5 shadow-sm dark:bg-card/90">
               <div className="mb-3 flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                 <p className="font-semibold text-foreground">Scanning tips</p>
@@ -709,7 +709,7 @@ function ScannerLab() {
               </ol>
             </div>
 
-            <div className="rounded-[1.75rem] border border-border/70 bg-white/85 p-5 shadow-sm">
+            <div className="rounded-[1.75rem] border border-border/70 bg-white/85 p-5 shadow-sm dark:bg-card/90">
               <div className="mb-3 flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-amber-500" />
                 <p className="font-semibold text-foreground">Recent scans</p>

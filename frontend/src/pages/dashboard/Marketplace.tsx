@@ -123,7 +123,7 @@ export default function Marketplace() {
               placeholder="Search products, farmers, or county..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-12 rounded-2xl border-white/70 bg-white/80 pl-10 shadow-sm"
+              className="h-12 rounded-2xl border-white/70 bg-white/80 pl-10 shadow-sm dark:border-white/10 dark:bg-card/90"
             />
           </div>
 
@@ -135,7 +135,7 @@ export default function Marketplace() {
                 className={`rounded-full px-4 py-2 text-xs font-semibold transition-all ${
                   activeCategory === category
                     ? "bg-primary text-primary-foreground shadow-glow-emerald"
-                    : "bg-white/80 text-muted-foreground ring-1 ring-border hover:bg-muted"
+                    : "bg-white/80 text-muted-foreground ring-1 ring-border hover:bg-muted dark:bg-card/90 dark:hover:bg-muted/80"
                 }`}
               >
                 {category}
@@ -154,7 +154,7 @@ export default function Marketplace() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
-                className="group overflow-hidden rounded-lg border border-border/70 bg-white/85 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] backdrop-blur"
+                className="group overflow-hidden rounded-lg border border-border/70 bg-white/85 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.6)]"
               >
                 <button
                   type="button"
@@ -204,7 +204,7 @@ export default function Marketplace() {
                         <p className="mt-1 text-xs text-muted-foreground">{product.category}</p>
                       </div>
                       {product.is_organic && (
-                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
                           Organic
                         </span>
                       )}
@@ -263,7 +263,7 @@ export default function Marketplace() {
             ))}
 
             {!filtered.length && (
-              <div className="col-span-full rounded-[2rem] border border-dashed border-border bg-white/75 py-16 text-center shadow-sm">
+              <div className="col-span-full rounded-[2rem] border border-dashed border-border bg-white/75 py-16 text-center shadow-sm dark:bg-card/80">
                 <PackageCheck className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
                 <h3 className="font-display text-xl font-bold text-foreground">No products match that search</h3>
                 <p className="mt-2 text-sm text-muted-foreground">Try a different category, county, or seller name.</p>
@@ -291,7 +291,7 @@ export default function Marketplace() {
                     <video src={syncedSelectedProduct.video_url} controls className="aspect-video max-h-[240px] w-full object-contain" />
                   </div>
                 ) : syncedSelectedProduct.cover_image_url ? (
-                  <div className="mx-auto max-w-lg overflow-hidden rounded-[1.75rem] border border-border bg-white shadow-lg">
+                  <div className="mx-auto max-w-lg overflow-hidden rounded-[1.75rem] border border-border bg-white shadow-lg dark:bg-card dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.6)]">
                     <img
                       src={syncedSelectedProduct.cover_image_url}
                       alt={syncedSelectedProduct.name}
@@ -306,12 +306,12 @@ export default function Marketplace() {
 
                 <div className="rounded-[1.5rem] border border-border bg-muted/40 p-4">
                   <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted-foreground">{syncedSelectedProduct.category}</span>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted-foreground">
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted-foreground dark:bg-background/70">{syncedSelectedProduct.category}</span>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted-foreground dark:bg-background/70">
                       {syncedSelectedProduct.stock} {syncedSelectedProduct.unit} available
                     </span>
                     {syncedSelectedProduct.is_organic && (
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Organic produce</span>
+                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">Organic produce</span>
                     )}
                   </div>
                   <p className="mt-4 text-sm leading-7 text-muted-foreground">
@@ -321,13 +321,13 @@ export default function Marketplace() {
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-[1.75rem] border border-border bg-white p-5 shadow-sm">
+                <div className="rounded-[1.75rem] border border-border bg-white p-5 shadow-sm dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.6)]">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Seller</p>
                       <p className="font-display text-xl font-bold text-foreground">{syncedSelectedProduct.profiles?.full_name || "Farmer"}</p>
                     </div>
-                    <div className="rounded-2xl bg-emerald-50 p-3">
+                    <div className="rounded-2xl bg-emerald-50 p-3 dark:bg-emerald-500/10">
                       <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
                     </div>
                   </div>

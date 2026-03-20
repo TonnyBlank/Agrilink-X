@@ -350,7 +350,7 @@ export default function Community() {
       </div>
 
       {!followingIds.length && !posts.some((post) => post.authorId === currentUserId) && (
-        <div className="mb-6 rounded-[1.5rem] border border-dashed border-border bg-white/80 p-5 text-sm text-muted-foreground">
+        <div className="mb-6 rounded-[1.5rem] border border-dashed border-border bg-white/80 p-5 text-sm text-muted-foreground dark:bg-card/80">
           Follow farmers to build your real community feed. Tips, Question, News, Weather, and General posts now come from farmers you follow.
         </div>
       )}

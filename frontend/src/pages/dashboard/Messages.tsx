@@ -124,7 +124,7 @@ export default function Messages() {
   return (
     <DashboardShell title="Messages">
       <div className="space-y-4">
-        <section className="rounded-[1.75rem] border border-emerald-200/60 bg-[linear-gradient(135deg,rgba(236,253,245,0.95),rgba(255,255,255,0.98))] p-5 shadow-sm">
+        <section className="rounded-[1.75rem] border border-emerald-200/60 bg-[linear-gradient(135deg,rgba(236,253,245,0.95),rgba(255,255,255,0.98))] p-5 shadow-sm dark:border-emerald-500/30 dark:bg-[linear-gradient(135deg,rgba(16,185,129,0.12),rgba(15,23,42,0.96))]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h3 className="font-display text-lg font-bold text-foreground">How Messaging Works</h3>
@@ -139,7 +139,7 @@ export default function Messages() {
                   value={farmerQuery}
                   onChange={(e) => setFarmerQuery(e.target.value)}
                   placeholder="Search a farmer by name, county, or farm size"
-                  className="rounded-xl bg-white pl-9"
+                  className="rounded-xl bg-white pl-9 dark:bg-card/90"
                 />
               </div>
               {searchingFarmers && <p className="text-xs text-muted-foreground">Searching farmers...</p>}
@@ -147,11 +147,11 @@ export default function Messages() {
                 <p className="text-xs text-muted-foreground">No farmers matched your search.</p>
               )}
               {!!farmerResults.length && (
-                <div className="space-y-2 rounded-2xl border border-emerald-100 bg-white/90 p-2">
+                <div className="space-y-2 rounded-2xl border border-emerald-100 bg-white/90 p-2 dark:border-emerald-500/20 dark:bg-card/90">
                   {farmerResults.map((farmer) => (
                     <div
                       key={farmer.user_id}
-                      className="flex items-center justify-between gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-emerald-50"
+                      className="flex items-center justify-between gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium text-foreground">{farmer.full_name || "Farmer"}</p>
@@ -182,9 +182,9 @@ export default function Messages() {
               )}
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700">1. Search farmer</span>
-              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700">2. View profile page</span>
-              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700">3. Start chat</span>
+              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700 dark:border-emerald-500/30 dark:bg-background/70 dark:text-emerald-300">1. Search farmer</span>
+              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700 dark:border-emerald-500/30 dark:bg-background/70 dark:text-emerald-300">2. View profile page</span>
+              <span className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700 dark:border-emerald-500/30 dark:bg-background/70 dark:text-emerald-300">3. Start chat</span>
             </div>
           </div>
         </section>

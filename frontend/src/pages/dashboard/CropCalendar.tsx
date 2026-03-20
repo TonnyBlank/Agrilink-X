@@ -96,10 +96,10 @@ export default function CropCalendar() {
   return (
     <DashboardShell title="Crop Calendar">
       <div className="space-y-6">
-        <section className="relative overflow-hidden rounded-[2rem] border border-emerald-200/70 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.14),_transparent_25%),linear-gradient(135deg,rgba(255,255,255,0.98),rgba(240,253,250,0.88))] p-6 shadow-[0_20px_60px_-28px_rgba(5,150,105,0.35)]">
+        <section className="relative overflow-hidden rounded-[2rem] border border-emerald-200/70 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.14),_transparent_25%),linear-gradient(135deg,rgba(255,255,255,0.98),rgba(240,253,250,0.88))] p-6 shadow-[0_20px_60px_-28px_rgba(5,150,105,0.35)] dark:border-emerald-500/30 dark:bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.10),_transparent_25%),linear-gradient(135deg,rgba(15,23,42,0.97),rgba(17,24,39,0.95))]">
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl space-y-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/60 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/60 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-emerald-500/30 dark:bg-background/65 dark:text-emerald-300">
                 <Sprout className="h-3.5 w-3.5" />
                 Farm Rhythm
               </span>
@@ -112,15 +112,15 @@ export default function CropCalendar() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/70 bg-white/75 p-4 backdrop-blur">
+              <div className="rounded-2xl border border-white/70 bg-white/75 p-4 backdrop-blur dark:border-white/10 dark:bg-background/60">
                 <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Today</p>
                 <p className="mt-2 font-display text-3xl font-bold text-foreground">{dueToday.length}</p>
               </div>
-              <div className="rounded-2xl border border-white/70 bg-white/75 p-4 backdrop-blur">
+              <div className="rounded-2xl border border-white/70 bg-white/75 p-4 backdrop-blur dark:border-white/10 dark:bg-background/60">
                 <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">This Week</p>
                 <p className="mt-2 font-display text-3xl font-bold text-foreground">{dueThisWeek.length}</p>
               </div>
-              <div className="rounded-2xl border border-white/70 bg-white/75 p-4 backdrop-blur">
+              <div className="rounded-2xl border border-white/70 bg-white/75 p-4 backdrop-blur dark:border-white/10 dark:bg-background/60">
                 <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Completed</p>
                 <p className="mt-2 font-display text-3xl font-bold text-foreground">{completed.length}</p>
               </div>
@@ -130,7 +130,7 @@ export default function CropCalendar() {
 
         <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
           <div className="space-y-6">
-            <section className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)]">
+            <section className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.55)]">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-primary">
@@ -178,26 +178,26 @@ export default function CropCalendar() {
               )}
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50/80 p-4">
+                <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50/80 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-amber-600" />
-                    <p className="font-semibold text-amber-950">Overdue tasks</p>
+                    <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-300" />
+                    <p className="font-semibold text-amber-950 dark:text-amber-100">Overdue tasks</p>
                   </div>
-                  <p className="mt-2 text-3xl font-bold text-amber-900">{overdue.length}</p>
-                  <p className="mt-1 text-sm text-amber-700">Review these first so they do not affect yield quality.</p>
+                  <p className="mt-2 text-3xl font-bold text-amber-900 dark:text-amber-100">{overdue.length}</p>
+                  <p className="mt-1 text-sm text-amber-700 dark:text-amber-200/85">Review these first so they do not affect yield quality.</p>
                 </div>
-                <div className="rounded-[1.5rem] border border-sky-200 bg-sky-50/80 p-4">
+                <div className="rounded-[1.5rem] border border-sky-200 bg-sky-50/80 p-4 dark:border-sky-500/30 dark:bg-sky-500/10">
                   <div className="flex items-center gap-2">
-                    <CloudSun className="h-5 w-5 text-sky-600" />
-                    <p className="font-semibold text-sky-950">Weather note</p>
+                    <CloudSun className="h-5 w-5 text-sky-600 dark:text-sky-300" />
+                    <p className="font-semibold text-sky-950 dark:text-sky-100">Weather note</p>
                   </div>
-                  <p className="mt-2 text-lg font-bold text-sky-950">{weather.icon} {weather.condition}</p>
-                  <p className="mt-1 text-sm text-sky-700">{weather.recommendation}</p>
+                  <p className="mt-2 text-lg font-bold text-sky-950 dark:text-sky-100">{weather.icon} {weather.condition}</p>
+                  <p className="mt-1 text-sm text-sky-700 dark:text-sky-200/85">{weather.recommendation}</p>
                 </div>
               </div>
             </section>
 
-            <section className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)]">
+            <section className="rounded-[2rem] border border-border/70 bg-white/85 p-6 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.55)]">
               <h3 className="font-display text-xl font-bold text-foreground">This Week at a Glance</h3>
               <div className="mt-4 space-y-3">
                 {dueThisWeek.length ? (
@@ -207,7 +207,7 @@ export default function CropCalendar() {
                         <p className="font-medium text-foreground">{event.title}</p>
                         <p className="text-sm text-muted-foreground">{event.crop} • {formatDate(event.date)}</p>
                       </div>
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted-foreground">{event.type}</span>
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-muted-foreground dark:bg-background/70">{event.type}</span>
                     </div>
                   ))
                 ) : (
@@ -226,7 +226,7 @@ export default function CropCalendar() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.04 }}
-                className="group rounded-[2rem] border border-border/70 bg-white/85 p-5 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)]"
+                className="group rounded-[2rem] border border-border/70 bg-white/85 p-5 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] dark:bg-card/90 dark:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.55)]"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                   <button
@@ -234,7 +234,7 @@ export default function CropCalendar() {
                     className={`mt-1 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border-2 transition-all ${
                       event.done
                         ? "border-emerald-500 bg-emerald-500 text-white shadow-lg"
-                        : "border-border bg-white text-muted-foreground hover:border-emerald-400 hover:text-emerald-700"
+                        : "border-border bg-white text-muted-foreground hover:border-emerald-400 hover:text-emerald-700 dark:bg-background/70 dark:hover:text-emerald-300"
                     }`}
                   >
                     {event.done ? <CheckCircle2 className="h-5 w-5" /> : <Clock3 className="h-5 w-5" />}
@@ -292,7 +292,7 @@ export default function CropCalendar() {
             ))}
 
             {!filteredEvents.length && (
-              <div className="rounded-[2rem] border border-dashed border-border bg-white/75 py-16 text-center shadow-sm">
+              <div className="rounded-[2rem] border border-dashed border-border bg-white/75 py-16 text-center shadow-sm dark:bg-card/80">
                 <CalendarDays className="mx-auto mb-4 h-14 w-14 text-muted-foreground" />
                 <h3 className="font-display text-xl font-bold text-foreground">No events in this view</h3>
                 <p className="mt-2 text-sm text-muted-foreground">Switch filters or create a new crop activity to get started.</p>

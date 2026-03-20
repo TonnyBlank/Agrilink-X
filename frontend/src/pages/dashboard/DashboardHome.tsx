@@ -252,7 +252,7 @@ export default function DashboardHome() {
                 transition={{ delay: i * 0.05 }}
                 className={`rounded-[1.75rem] p-5 shadow-sm ${
                   kpi.label === revenueCardLabel
-                    ? "border border-emerald-300/70 bg-[radial-gradient(circle_at_top_left,_rgb(52_211_153_/_0.42),_transparent_42%),linear-gradient(145deg,_rgb(240_253_244),_rgb(209_250_229))] shadow-[0_22px_44px_-26px_rgb(22_163_74_/_0.9)]"
+                    ? "border border-emerald-300/70 bg-[radial-gradient(circle_at_top_left,_rgb(52_211_153_/_0.42),_transparent_42%),linear-gradient(145deg,_rgb(240_253_244),_rgb(209_250_229))] shadow-[0_22px_44px_-26px_rgb(22_163_74_/_0.9)] dark:border-emerald-500/30 dark:bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.2),_transparent_40%),linear-gradient(145deg,_rgba(15,23,42,0.92),_rgba(17,24,39,0.98))] dark:shadow-[0_22px_44px_-26px_rgba(16,185,129,0.35)]"
                     : "border border-border/70 bg-background/80"
                 }`}
               >
@@ -260,18 +260,18 @@ export default function DashboardHome() {
                   <div
                     className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                       kpi.label === revenueCardLabel
-                        ? "bg-emerald-500/20 ring-1 ring-emerald-400/50 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.55)]"
+                        ? "bg-emerald-500/20 ring-1 ring-emerald-400/50 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.55)] dark:bg-emerald-500/15 dark:ring-emerald-500/30 dark:shadow-none"
                         : "bg-primary/10"
                     }`}
                   >
-                    <kpi.icon className={`h-5 w-5 ${kpi.label === revenueCardLabel ? "text-emerald-700" : "text-primary"}`} />
+                    <kpi.icon className={`h-5 w-5 ${kpi.label === revenueCardLabel ? "text-emerald-700 dark:text-emerald-300" : "text-primary"}`} />
                   </div>
                 </div>
-                <p className={`text-xs font-medium ${kpi.label === revenueCardLabel ? "text-emerald-800/80" : "text-muted-foreground"}`}>
+                <p className={`text-xs font-medium ${kpi.label === revenueCardLabel ? "text-emerald-800/80 dark:text-emerald-200/80" : "text-muted-foreground"}`}>
                   {kpi.label}
                 </p>
                 <div className="mt-1 flex items-baseline gap-2">
-                  <span className={`font-display text-xl font-bold ${kpi.label === revenueCardLabel ? "text-emerald-800" : "text-foreground"}`}>
+                  <span className={`font-display text-xl font-bold ${kpi.label === revenueCardLabel ? "text-emerald-800 dark:text-emerald-100" : "text-foreground"}`}>
                     {kpi.value}
                   </span>
                   {kpi.delta && (
@@ -348,7 +348,7 @@ export default function DashboardHome() {
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
-                  <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700 backdrop-blur">
+                  <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700 backdrop-blur dark:bg-background/80 dark:text-emerald-300">
                     {signal.trend}
                   </div>
                   <div className="absolute bottom-4 left-4 right-4">
@@ -365,9 +365,9 @@ export default function DashboardHome() {
 
         <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="space-y-3">
           {sensorCards.map((card) => (
-            <div
+              <div
               key={card.label}
-              className="flex items-center gap-3 rounded-[1.5rem] border border-border/70 bg-white/90 px-4 py-3.5 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.2)]"
+              className="flex items-center gap-3 rounded-[1.5rem] border border-border/70 bg-white/90 px-4 py-3.5 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.2)] dark:bg-card/90 dark:shadow-[0_16px_32px_-24px_rgba(0,0,0,0.55)]"
             >
               <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${card.iconTone}`}>{card.icon}</div>
               <div className="min-w-0 flex-1">
