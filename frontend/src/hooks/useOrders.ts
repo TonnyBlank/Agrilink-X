@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { apiFetch } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Order = {
   id: string;
@@ -15,6 +16,11 @@ export type Order = {
   status: string;
   payment_method: string | null;
   payment_ref: string | null;
+  payment_status: string;
+  merchant_request_id?: string | null;
+  checkout_request_id?: string | null;
+  payment_error?: string | null;
+  paid_at?: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -23,6 +29,59 @@ export type Order = {
   farmer_profile?: { full_name: string | null } | null;
 };
 
+type OrderRow = Omit<Order, "product" | "buyer_profile" | "farmer_profile">;
+
+async function hydrateOrders(rows: OrderRow[]) {
+  if (!rows.length) return [] as Order[];
+
+  const productIds = Array.from(new Set(rows.map((order) => order.product_id)));
+  const userIds = Array.from(new Set(rows.flatMap((order) => [order.buyer_id, order.farmer_id])));
+
+  const [{ data: products, error: productsError }, { data: profiles, error: profilesError }] = await Promise.all([
+    supabase.from("products").select("id, name, image_emoji").in("id", productIds),
+    supabase.from("profiles").select("user_id, full_name").in("user_id", userIds),
+  ]);
+
+  if (productsError) throw productsError;
+  if (profilesError) throw profilesError;
+
+  const productsById = new Map((products ?? []).map((product) => [product.id, product]));
+  const profilesByUserId = new Map((profiles ?? []).map((profile) => [profile.user_id, profile]));
+
+  return rows.map((order) => ({
+    ...order,
+    product: productsById.get(order.product_id)
+      ? {
+          name: productsById.get(order.product_id)!.name,
+          image_emoji: productsById.get(order.product_id)!.image_emoji,
+        }
+      : null,
+    buyer_profile: profilesByUserId.get(order.buyer_id)
+      ? { full_name: profilesByUserId.get(order.buyer_id)!.full_name }
+      : null,
+    farmer_profile: profilesByUserId.get(order.farmer_id)
+      ? { full_name: profilesByUserId.get(order.farmer_id)!.full_name }
+      : null,
+  }));
+}
+
+async function loadOrdersFromSupabase(userId: string) {
+  const [{ data: sellingRows, error: sellingError }, { data: buyingRows, error: buyingError }] = await Promise.all([
+    supabase.from("orders").select("*").eq("farmer_id", userId).order("created_at", { ascending: false }),
+    supabase.from("orders").select("*").eq("buyer_id", userId).order("created_at", { ascending: false }),
+  ]);
+
+  if (sellingError) throw sellingError;
+  if (buyingError) throw buyingError;
+
+  const [sellingOrders, buyingOrders] = await Promise.all([
+    hydrateOrders((sellingRows ?? []) as OrderRow[]),
+    hydrateOrders((buyingRows ?? []) as OrderRow[]),
+  ]);
+
+  return { sellingOrders, buyingOrders };
+}
+
 export function useOrders() {
   const { user } = useAuth();
   const [sellingOrders, setSellingOrders] = useState<Order[]>([]);
@@ -30,7 +89,13 @@ export function useOrders() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setSellingOrders([]);
+      setBuyingOrders([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -41,8 +106,15 @@ export function useOrders() {
       setSellingOrders(sellingData);
       setBuyingOrders(buyingData);
     } catch (error) {
-      console.error("Failed to load orders", error);
-      toast.error("Failed to load orders");
+      console.error("Failed to load orders from API, falling back to Supabase", error);
+      try {
+        const fallbackData = await loadOrdersFromSupabase(user.id);
+        setSellingOrders(fallbackData.sellingOrders);
+        setBuyingOrders(fallbackData.buyingOrders);
+      } catch (fallbackError) {
+        console.error("Failed to load orders from Supabase", fallbackError);
+        toast.error("Failed to load orders");
+      }
     } finally {
       setLoading(false);
     }
@@ -84,10 +156,52 @@ export function useOrders() {
       });
       toast.success(`Order ${status}`);
       await load();
+      return true;
     } catch (error) {
-      toast.error("Failed to update status");
+      toast.error("Failed to update status: " + (error as Error).message);
+      return false;
     }
   };
 
-  return { sellingOrders, buyingOrders, loading, placeOrder, updateOrderStatus, refetch: load };
+  const initiateMpesaPayment = async (orderId: string, phoneNumber: string) => {
+    try {
+      const data = await apiFetch<{ message: string }>("/payments/orders/" + orderId + "/mpesa", {
+        method: "POST",
+        body: { phoneNumber } as unknown as BodyInit,
+      });
+      toast.success(data.message || "M-Pesa prompt sent to your phone");
+      await load();
+      return true;
+    } catch (error) {
+      toast.error("Payment failed to start: " + (error as Error).message);
+      return false;
+    }
+  };
+
+  const refreshMpesaPaymentStatus = async (orderId: string) => {
+    try {
+      const data = await apiFetch<{ payment_status: string; resultDesc: string }>("/payments/orders/" + orderId + "/mpesa-status");
+      if (data.payment_status === "paid") {
+        toast.success("Payment confirmed");
+      } else {
+        toast.message(data.resultDesc || "Payment status updated");
+      }
+      await load();
+      return true;
+    } catch (error) {
+      toast.error("Failed to check payment status: " + (error as Error).message);
+      return false;
+    }
+  };
+
+  return {
+    sellingOrders,
+    buyingOrders,
+    loading,
+    placeOrder,
+    updateOrderStatus,
+    initiateMpesaPayment,
+    refreshMpesaPaymentStatus,
+    refetch: load,
+  };
 }

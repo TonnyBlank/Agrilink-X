@@ -7,6 +7,17 @@ import multer from "multer";
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB
 
+function buildSafeStoragePath(userId: string, originalName: string) {
+  const sanitizedName = originalName
+    .normalize("NFKD")
+    .replace(/[^\w.-]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  const fallbackName = sanitizedName || "upload";
+  return `${userId}/${Date.now()}_${fallbackName}`;
+}
+
 type MarketplaceProduct = {
   id: string;
   farmer_id: string;
@@ -17,6 +28,7 @@ type MarketplaceProduct = {
   stock: number;
   description: string | null;
   image_emoji: string | null;
+  cover_image_url: string | null;
   video_url: string | null;
   is_organic: boolean;
   is_available: boolean;
@@ -227,7 +239,7 @@ router.get("/:id", async (req, res) => {
 // POST /api/products — Create product (protected)
 router.post("/", authenticate, async (req: AuthRequest, res) => {
   const supabase = req.supabase!;
-  const { name, category, price_per_unit, unit, stock, description, image_emoji, video_url, is_organic, location } = req.body;
+  const { name, category, price_per_unit, unit, stock, description, image_emoji, cover_image_url, video_url, is_organic, location } = req.body;
 
   if (!name || !category || !unit) {
     return res.status(400).json({ error: "Name, category, and unit are required" });
@@ -242,6 +254,34 @@ router.post("/", authenticate, async (req: AuthRequest, res) => {
 
   if (!Number.isFinite(normalizedStock) || normalizedStock < 0) {
     return res.status(400).json({ error: "Stock must be a valid non-negative number" });
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("full_name, phone, county, farm_size, main_crops, bio, payout_method, payout_mpesa_number, bank_name, bank_account_name, bank_account_number")
+    .eq("user_id", req.userId!)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+
+  const missingProfileFields = [
+    !profile?.full_name?.trim() ? "full name" : null,
+    !profile?.phone?.trim() ? "phone number" : null,
+    !profile?.county?.trim() ? "county" : null,
+    !profile?.farm_size?.trim() ? "farm size" : null,
+    !profile?.main_crops?.length ? "main crops" : null,
+    !profile?.bio?.trim() ? "bio" : null,
+    !profile?.payout_method ? "payout method" : null,
+    profile?.payout_method === "mpesa" && !profile?.payout_mpesa_number?.trim() ? "M-Pesa payout number" : null,
+    profile?.payout_method === "bank" && !profile?.bank_name?.trim() ? "bank name" : null,
+    profile?.payout_method === "bank" && !profile?.bank_account_name?.trim() ? "bank account name" : null,
+    profile?.payout_method === "bank" && !profile?.bank_account_number?.trim() ? "bank account number" : null,
+  ].filter(Boolean);
+
+  if (missingProfileFields.length) {
+    return res.status(403).json({
+      error: `Complete your profile before uploading products. Missing: ${missingProfileFields.join(", ")}.`,
+    });
   }
 
   const role = await resolveAppRole(supabase, req.userId!, req.requestedRole);
@@ -269,6 +309,7 @@ router.post("/", authenticate, async (req: AuthRequest, res) => {
     stock: normalizedStock,
     description: description ? String(description).trim() : null,
     image_emoji: image_emoji ? String(image_emoji).trim() : null,
+    cover_image_url: cover_image_url ? String(cover_image_url).trim() : null,
     video_url: video_url ? String(video_url).trim() : null,
     is_organic: Boolean(is_organic),
     location: location ? String(location).trim() : null,
@@ -315,13 +356,31 @@ router.post("/upload-video", authenticate, upload.single("video"), async (req: A
   if (!["video/mp4", "video/webm", "video/quicktime"].includes(req.file.mimetype)) {
     return res.status(400).json({ error: "Only MP4, WebM, and MOV videos are allowed" });
   }
-  const filePath = `${req.userId}/${Date.now()}_${req.file.originalname}`;
+  const filePath = buildSafeStoragePath(req.userId!, req.file.originalname);
   const { error } = await supabase.storage
     .from("product-media")
     .upload(filePath, req.file.buffer, { contentType: req.file.mimetype });
   if (error) {
     console.error("[products.upload-video] Storage upload failed:", error);
     return res.status(400).json({ error: error.message || "Failed to upload video" });
+  }
+  const { data } = supabase.storage.from("product-media").getPublicUrl(filePath);
+  res.json({ url: data.publicUrl });
+});
+
+router.post("/upload-image", authenticate, upload.single("image"), async (req: AuthRequest, res) => {
+  const supabase = req.supabase!;
+  if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+  if (!["image/jpeg", "image/png", "image/webp"].includes(req.file.mimetype)) {
+    return res.status(400).json({ error: "Only JPG, PNG, and WebP images are allowed" });
+  }
+  const filePath = buildSafeStoragePath(req.userId!, req.file.originalname);
+  const { error } = await supabase.storage
+    .from("product-media")
+    .upload(filePath, req.file.buffer, { contentType: req.file.mimetype });
+  if (error) {
+    console.error("[products.upload-image] Storage upload failed:", error);
+    return res.status(400).json({ error: error.message || "Failed to upload image" });
   }
   const { data } = supabase.storage.from("product-media").getPublicUrl(filePath);
   res.json({ url: data.publicUrl });

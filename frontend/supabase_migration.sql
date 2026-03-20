@@ -156,3 +156,7 @@ $$;
 CREATE TRIGGER products_updated_at    BEFORE UPDATE ON products    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER orders_updated_at      BEFORE UPDATE ON orders      FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER crop_events_updated_at BEFORE UPDATE ON crop_events FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Backfill for deployments that were created before cover_image_url was added
+ALTER TABLE public.products
+ADD COLUMN IF NOT EXISTS cover_image_url text;

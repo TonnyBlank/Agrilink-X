@@ -87,7 +87,7 @@ router.get("/:userId", async (req, res) => {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
     .from("profiles")
-    .select("full_name, county, farm_size, main_crops, bio, photo_url, phone")
+    .select("full_name, county, farm_size, main_crops, bio, photo_url")
     .eq("user_id", req.params.userId)
     .maybeSingle();
 
@@ -116,10 +116,39 @@ router.patch("/me", authenticate, async (req: AuthRequest, res) => {
       : null;
   await ensureProfileExists(supabase, req.userId!, fallbackFullName);
 
-  const { full_name, county, farm_size, main_crops, bio, phone } = req.body;
+  const {
+    full_name,
+    county,
+    farm_size,
+    main_crops,
+    bio,
+    phone,
+    payout_method,
+    payout_mpesa_number,
+    bank_name,
+    bank_account_name,
+    bank_account_number,
+  } = req.body;
+
+  const normalizedPayoutMethod =
+    payout_method === "mpesa" || payout_method === "bank" ? payout_method : null;
+
   const { data, error } = await supabase
     .from("profiles")
-    .update({ full_name, county, farm_size, main_crops, bio, phone })
+    .update({
+      full_name,
+      county,
+      farm_size,
+      main_crops,
+      bio,
+      phone,
+      payout_method: normalizedPayoutMethod,
+      payout_mpesa_number: normalizedPayoutMethod === "mpesa" ? payout_mpesa_number || null : null,
+      bank_name: normalizedPayoutMethod === "bank" ? bank_name || null : null,
+      bank_account_name: normalizedPayoutMethod === "bank" ? bank_account_name || null : null,
+      bank_account_number: normalizedPayoutMethod === "bank" ? bank_account_number || null : null,
+      payout_details_updated_at: normalizedPayoutMethod ? new Date().toISOString() : null,
+    })
     .eq("user_id", req.userId!)
     .select()
     .single();

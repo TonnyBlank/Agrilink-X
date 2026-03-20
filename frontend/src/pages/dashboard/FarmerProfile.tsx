@@ -13,7 +13,6 @@ type FarmerProfileData = {
   main_crops: string[] | null;
   bio: string | null;
   photo_url: string | null;
-  phone: string | null;
   video_url: string | null;
 };
 
@@ -120,10 +119,6 @@ export default function FarmerProfile() {
                   <div className="flex items-center justify-between rounded-xl bg-muted/35 px-4 py-3">
                     <span className="text-muted-foreground">Farm Size</span>
                     <span className="font-semibold text-foreground">{profile.farm_size || "Not set"}</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl bg-muted/35 px-4 py-3">
-                    <span className="text-muted-foreground">Phone</span>
-                    <span className="font-semibold text-foreground">{profile.phone || "Not shared"}</span>
                   </div>
                 </div>
               </div>

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Profile() {
   const { profile, refreshProfile, user } = useAuth();
@@ -28,6 +29,11 @@ export default function Profile() {
     phone: profile?.phone || "",
     county: profile?.county || "",
     bio: profile?.bio || "",
+    payout_method: profile?.payout_method || "",
+    payout_mpesa_number: profile?.payout_mpesa_number || "",
+    bank_name: profile?.bank_name || "",
+    bank_account_name: profile?.bank_account_name || "",
+    bank_account_number: profile?.bank_account_number || "",
   });
   const [passwordForm, setPasswordForm] = useState({
     password: "",
@@ -54,12 +60,17 @@ export default function Profile() {
           phone: profileForm.phone,
           county: profileForm.county,
           bio: profileForm.bio,
+          payout_method: profileForm.payout_method || null,
+          payout_mpesa_number: profileForm.payout_method === "mpesa" ? profileForm.payout_mpesa_number : null,
+          bank_name: profileForm.payout_method === "bank" ? profileForm.bank_name : null,
+          bank_account_name: profileForm.payout_method === "bank" ? profileForm.bank_account_name : null,
+          bank_account_number: profileForm.payout_method === "bank" ? profileForm.bank_account_number : null,
         } as unknown as BodyInit,
       });
       toast.success("Profile updated successfully!");
       await refreshProfile();
     } catch (error) {
-      toast.error("Failed to update profile");
+      toast.error("Failed to update profile: " + (error as Error).message);
     } finally {
       setIsSavingProfile(false);
     }
@@ -223,6 +234,69 @@ export default function Profile() {
                 <Label>About You</Label>
                 <Textarea value={profileForm.bio} onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })} className="min-h-[110px] rounded-xl" />
               </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>How you receive payouts</Label>
+                <Select
+                  value={profileForm.payout_method}
+                  onValueChange={(value) =>
+                    setProfileForm((current) => ({
+                      ...current,
+                      payout_method: value,
+                      payout_mpesa_number: value === "mpesa" ? current.payout_mpesa_number : "",
+                      bank_name: value === "bank" ? current.bank_name : "",
+                      bank_account_name: value === "bank" ? current.bank_account_name : "",
+                      bank_account_number: value === "bank" ? current.bank_account_number : "",
+                    }))
+                  }
+                >
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue placeholder="Choose payout method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mpesa">M-Pesa</SelectItem>
+                    <SelectItem value="bank">Bank Account</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {profileForm.payout_method === "mpesa" && (
+                <div className="space-y-2 md:col-span-2">
+                  <Label>M-Pesa Number</Label>
+                  <Input
+                    value={profileForm.payout_mpesa_number}
+                    onChange={(e) => setProfileForm({ ...profileForm, payout_mpesa_number: e.target.value })}
+                    placeholder="2547XXXXXXXX"
+                    className="rounded-xl"
+                  />
+                </div>
+              )}
+              {profileForm.payout_method === "bank" && (
+                <>
+                  <div className="space-y-2">
+                    <Label>Bank Name</Label>
+                    <Input
+                      value={profileForm.bank_name}
+                      onChange={(e) => setProfileForm({ ...profileForm, bank_name: e.target.value })}
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Account Name</Label>
+                    <Input
+                      value={profileForm.bank_account_name}
+                      onChange={(e) => setProfileForm({ ...profileForm, bank_account_name: e.target.value })}
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Account Number</Label>
+                    <Input
+                      value={profileForm.bank_account_number}
+                      onChange={(e) => setProfileForm({ ...profileForm, bank_account_number: e.target.value })}
+                      className="rounded-xl"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

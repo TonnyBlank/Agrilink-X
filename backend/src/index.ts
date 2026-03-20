@@ -9,6 +9,7 @@ import messagesRouter from "./routes/messages";
 import cropEventsRouter from "./routes/cropEvents";
 import profilesRouter from "./routes/profiles";
 import idVerificationRouter from "./routes/idVerification";
+import paymentsRouter from "./routes/payments";
 import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
@@ -30,6 +31,7 @@ app.use("/api/messages",        messagesRouter);
 app.use("/api/crop-events",     cropEventsRouter);
 app.use("/api/profiles",        profilesRouter);
 app.use("/api/id-verification", idVerificationRouter);
+app.use("/api/payments",        paymentsRouter);
 
 // ── 404 handler ─────────────────────────────────────────────────
 app.use((_req, res) => {

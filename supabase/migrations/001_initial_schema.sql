@@ -290,3 +290,7 @@ DROP TRIGGER IF EXISTS crop_events_updated_at ON crop_events;
 CREATE TRIGGER crop_events_updated_at BEFORE UPDATE ON crop_events FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 DROP TRIGGER IF EXISTS product_ratings_updated_at ON product_ratings;
 CREATE TRIGGER product_ratings_updated_at BEFORE UPDATE ON product_ratings FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Backfill for deployments that were created before cover_image_url was added
+ALTER TABLE public.products
+ADD COLUMN IF NOT EXISTS cover_image_url text;

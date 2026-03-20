@@ -49,6 +49,7 @@ export type Database = {
           stock: number
           description: string | null
           image_emoji: string | null
+          cover_image_url: string | null
           video_url: string | null
           is_organic: boolean
           is_available: boolean
@@ -66,6 +67,7 @@ export type Database = {
           stock?: number
           description?: string | null
           image_emoji?: string | null
+          cover_image_url?: string | null
           video_url?: string | null
           is_organic?: boolean
           is_available?: boolean
@@ -83,6 +85,7 @@ export type Database = {
           stock?: number
           description?: string | null
           image_emoji?: string | null
+          cover_image_url?: string | null
           video_url?: string | null
           is_organic?: boolean
           is_available?: boolean
@@ -105,6 +108,11 @@ export type Database = {
           status: string
           payment_method: string | null
           payment_ref: string | null
+          payment_status: string
+          merchant_request_id: string | null
+          checkout_request_id: string | null
+          payment_error: string | null
+          paid_at: string | null
           notes: string | null
           created_at: string
           updated_at: string
@@ -121,6 +129,11 @@ export type Database = {
           status?: string
           payment_method?: string | null
           payment_ref?: string | null
+          payment_status?: string
+          merchant_request_id?: string | null
+          checkout_request_id?: string | null
+          payment_error?: string | null
+          paid_at?: string | null
           notes?: string | null
           created_at?: string
           updated_at?: string
@@ -137,6 +150,11 @@ export type Database = {
           status?: string
           payment_method?: string | null
           payment_ref?: string | null
+          payment_status?: string
+          merchant_request_id?: string | null
+          checkout_request_id?: string | null
+          payment_error?: string | null
+          paid_at?: string | null
           notes?: string | null
           created_at?: string
           updated_at?: string
@@ -278,6 +296,9 @@ export type Database = {
       profiles: {
         Row: {
           bio: string | null
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_name: string | null
           county: string | null
           created_at: string
           farm_size: string | null
@@ -286,11 +307,17 @@ export type Database = {
           main_crops: string[] | null
           phone: string | null
           photo_url: string | null
+          payout_details_updated_at: string | null
+          payout_method: string | null
+          payout_mpesa_number: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           bio?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
           county?: string | null
           created_at?: string
           farm_size?: string | null
@@ -299,11 +326,17 @@ export type Database = {
           main_crops?: string[] | null
           phone?: string | null
           photo_url?: string | null
+          payout_details_updated_at?: string | null
+          payout_method?: string | null
+          payout_mpesa_number?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           bio?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
           county?: string | null
           created_at?: string
           farm_size?: string | null
@@ -312,6 +345,9 @@ export type Database = {
           main_crops?: string[] | null
           phone?: string | null
           photo_url?: string | null
+          payout_details_updated_at?: string | null
+          payout_method?: string | null
+          payout_mpesa_number?: string | null
           updated_at?: string
           user_id?: string
         }

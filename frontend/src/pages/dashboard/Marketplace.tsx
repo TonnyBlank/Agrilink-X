@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { BadgeCheck, Heart, MapPin, MessageCircle, PackageCheck, PlayCircle, Search, ShoppingCart, Sprout, Star, Video } from "lucide-react";
+import { BadgeCheck, Heart, MapPin, MessageCircle, PackageCheck, Search, ShoppingCart, Sprout, Star, Video } from "lucide-react";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { useMarketplaceProducts } from "@/hooks/useProducts";
 import { useOrders } from "@/hooks/useOrders";
@@ -76,6 +76,10 @@ export default function Marketplace() {
       toast.error("Please sign in before placing an order.");
       return;
     }
+    if (parsedQuantity > syncedSelectedProduct.stock) {
+      toast.error(`Only ${syncedSelectedProduct.stock} ${syncedSelectedProduct.unit} available for this product.`);
+      return;
+    }
 
     setIsCheckingOut(true);
     const success = await placeOrder({
@@ -97,34 +101,17 @@ export default function Marketplace() {
   return (
     <DashboardShell title="Marketplace">
       <div className="space-y-6">
-        <section className="relative overflow-hidden rounded-[2rem] border border-emerald-200/70 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.14),_transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.98),rgba(240,253,250,0.88))] p-6 shadow-[0_20px_60px_-28px_rgba(5,150,105,0.35)]">
-          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl space-y-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/60 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
-                <Sprout className="h-3.5 w-3.5" />
-                Verified Harvests
-              </span>
-              <div>
-                <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">Shop produce with real seller media</h2>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Fresh listings, direct farmer details, and farmer videos that help buyers judge quality before checkout.
-                </p>
-              </div>
+        <section className="space-y-4">
+          <div className="max-w-3xl space-y-3">
+            <div className="flex items-center gap-2 text-emerald-700">
+              <Sprout className="h-4 w-4" />
+              <span className="text-sm font-semibold uppercase tracking-[0.2em]">Verified Harvests</span>
             </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/70 bg-white/75 p-4 backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Video Listings</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{highlights.withVideo}</p>
-              </div>
-              <div className="rounded-2xl border border-white/70 bg-white/75 p-4 backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Organic Picks</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{highlights.organic}</p>
-              </div>
-              <div className="rounded-2xl border border-white/70 bg-white/75 p-4 backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Counties</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{highlights.counties}</p>
-              </div>
+            <div>
+              <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">Shop produce with real seller media</h2>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Fresh listings, direct farmer details, and farmer videos that help buyers judge quality before checkout.
+              </p>
             </div>
           </div>
         </section>
@@ -160,14 +147,14 @@ export default function Marketplace() {
         {loading ? (
           <div className="bento-card text-sm text-muted-foreground">Loading marketplace products...</div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {filtered.map((product, index) => (
               <motion.article
                 key={product.id}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
-                className="group overflow-hidden rounded-[2rem] border border-border/70 bg-white/85 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] backdrop-blur"
+                className="group overflow-hidden rounded-lg border border-border/70 bg-white/85 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.35)] backdrop-blur"
               >
                 <button
                   type="button"
@@ -175,38 +162,46 @@ export default function Marketplace() {
                   className="block w-full text-left"
                 >
                   <div className="relative">
-                    {product.video_url ? (
+                    {product.cover_image_url ? (
+                      <>
+                        <img
+                          src={product.cover_image_url}
+                          alt={product.name}
+                          className="aspect-[4/3] max-h-36 w-full bg-slate-950 object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 to-transparent" />
+                        <div className="absolute left-1/2 top-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur">
+                          {product.video_url ? <Video className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
+                          Tap to view and watch
+                        </div>
+                      </>
+                    ) : product.video_url ? (
                       <>
                         <video
                           src={product.video_url}
                           muted
                           playsInline
                           preload="metadata"
-                          className="aspect-video max-h-40 w-full bg-slate-950 object-cover"
+                          className="aspect-[4/3] max-h-36 w-full bg-slate-950 object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 to-transparent" />
-                        <div className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                        <div className="absolute left-1/2 top-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur">
                           <Video className="h-3.5 w-3.5" />
-                          Farmer Video
-                        </div>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="rounded-full bg-white/92 p-3 shadow-xl transition-transform duration-300 group-hover:scale-110">
-                            <PlayCircle className="h-8 w-8 text-emerald-700" />
-                          </div>
+                          Tap to view and watch
                         </div>
                       </>
                     ) : (
-                      <div className="flex aspect-video items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.28),_transparent_42%),linear-gradient(135deg,rgba(236,253,245,1),rgba(255,255,255,0.92))] text-8xl">
-                        {product.image_emoji || "🌾"}
+                      <div className="flex aspect-[4/3] items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.28),_transparent_42%),linear-gradient(135deg,rgba(236,253,245,1),rgba(255,255,255,0.92))] text-7xl">
+                        {product.image_emoji || "ðŸŒ¾"}
                       </div>
                     )}
                   </div>
 
-                  <div className="space-y-4 p-5">
+                  <div className="space-y-2.5 p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <h4 className="font-display text-xl font-bold text-foreground">{product.name}</h4>
-                        <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
+                        <h4 className="line-clamp-2 font-display text-base font-bold leading-snug text-foreground">{product.name}</h4>
+                        <p className="mt-1 text-xs text-muted-foreground">{product.category}</p>
                       </div>
                       {product.is_organic && (
                         <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-700">
@@ -215,63 +210,53 @@ export default function Marketplace() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <MapPin className="h-4 w-4" />
                       <span>{product.location || product.profiles?.county || "Unknown county"}</span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <BadgeCheck className="h-4 w-4 text-emerald-600" />
                       <span>{product.profiles?.full_name || "Verified farmer"}</span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 rounded-2xl bg-muted/35 px-3 py-2 text-sm">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Heart className={`h-4 w-4 ${product.liked_by_me ? "fill-rose-500 text-rose-500" : ""}`} />
-                        <span>{product.likes_count}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                        <span>{product.average_rating ? product.average_rating.toFixed(1) : "New"}</span>
-                        <span className="text-xs">({product.ratings_count})</span>
-                      </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                      <span>{product.average_rating ? product.average_rating.toFixed(1) : "New"}</span>
+                      <span>({product.ratings_count} ratings)</span>
                     </div>
 
-                    {product.description && (
-                      <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">{product.description}</p>
-                    )}
-
-                    <div className="grid grid-cols-3 gap-3 rounded-[1.5rem] bg-muted/50 p-3">
+                    <div className="grid grid-cols-3 gap-2 rounded-lg bg-muted/50 p-2.5">
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Price</p>
-                        <p className="mt-1 font-display text-lg font-bold text-primary">KES {product.price_per_unit}</p>
+                        <p className="mt-1 font-display text-base font-bold text-primary">KES {product.price_per_unit}</p>
                       </div>
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Unit</p>
-                        <p className="mt-1 text-base font-semibold text-foreground">{product.unit}</p>
+                        <p className="mt-1 text-sm font-semibold text-foreground">{product.unit}</p>
                       </div>
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Stock</p>
-                        <p className="mt-1 text-base font-semibold text-foreground">{product.stock}</p>
+                        <p className="mt-1 text-sm font-semibold text-foreground">{product.stock}</p>
                       </div>
                     </div>
                   </div>
                 </button>
 
-                <div className="flex gap-2 px-5 pb-5">
+                <div className="flex gap-2 px-3 pb-3">
                   <Button
                     type="button"
                     variant="outline"
-                    className="rounded-xl px-4"
+                    className="rounded-lg px-3"
                     onClick={() => void toggleLike(product.id)}
                   >
                     <Heart className={`h-4 w-4 ${product.liked_by_me ? "fill-rose-500 text-rose-500" : ""}`} />
                   </Button>
                   <Button
                     onClick={() => setSelectedProduct(product)}
-                    className="w-full rounded-xl bg-primary/10 text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                    className="w-full rounded-lg bg-primary/10 text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
                   >
-                    <ShoppingCart className="mr-2 h-4 w-4" /> View & Buy
+                    <ShoppingCart className="mr-2 h-4 w-4" /> Buy
                   </Button>
                 </div>
               </motion.article>
@@ -305,9 +290,17 @@ export default function Marketplace() {
                   <div className="mx-auto max-w-lg overflow-hidden rounded-[1.75rem] border border-border bg-slate-950 shadow-lg">
                     <video src={syncedSelectedProduct.video_url} controls className="aspect-video max-h-[240px] w-full object-contain" />
                   </div>
+                ) : syncedSelectedProduct.cover_image_url ? (
+                  <div className="mx-auto max-w-lg overflow-hidden rounded-[1.75rem] border border-border bg-white shadow-lg">
+                    <img
+                      src={syncedSelectedProduct.cover_image_url}
+                      alt={syncedSelectedProduct.name}
+                      className="aspect-video max-h-[240px] w-full object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="flex aspect-video items-center justify-center rounded-[1.75rem] border border-border bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.28),_transparent_42%),linear-gradient(135deg,rgba(236,253,245,1),rgba(255,255,255,0.92))] text-8xl">
-                    {syncedSelectedProduct.image_emoji || "🌾"}
+                    {syncedSelectedProduct.image_emoji || "ðŸŒ¾"}
                   </div>
                 )}
 
@@ -398,10 +391,14 @@ export default function Marketplace() {
                         id="quantity"
                         type="number"
                         min="1"
+                        max={syncedSelectedProduct.stock}
                         value={quantity}
                         onChange={(e) => setQuantity(e.target.value)}
                         className="rounded-xl"
                       />
+                      <p className="text-xs text-muted-foreground">
+                        Available stock: {syncedSelectedProduct.stock} {syncedSelectedProduct.unit}
+                      </p>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Delivery</span>

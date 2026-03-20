@@ -66,6 +66,7 @@ export type Product = {
   stock: number;
   description: string | null;
   image_emoji: string | null;
+  cover_image_url: string | null;
   video_url: string | null;
   is_organic: boolean;
   is_available: boolean;
@@ -226,6 +227,7 @@ export function useMyProducts() {
     stock: number;
     description?: string;
     image_emoji?: string;
+    cover_image_url?: string;
     video_url?: string;
     is_organic: boolean;
   }) => {
@@ -267,6 +269,25 @@ export function useMyProducts() {
     }
   };
 
+  const uploadProductImage = async (file: File) => {
+    if (!user) return null;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const data = await apiFetch<{ url: string }>("/products/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+      toast.success("Cover image uploaded successfully!");
+      return data.url;
+    } catch (error) {
+      toast.error(`Failed to upload cover image: ${(error as Error).message}`);
+      return null;
+    }
+  };
+
   const updateProduct = async (id: string, updates: Partial<Product>) => {
     try {
       await apiFetch<Product>(`/products/${id}`, {
@@ -276,8 +297,10 @@ export function useMyProducts() {
       toast.success("Product updated!");
       notifyProductsChanged();
       await load();
+      return true;
     } catch (error) {
       toast.error("Failed to update product");
+      return false;
     }
   };
 
@@ -294,5 +317,5 @@ export function useMyProducts() {
     }
   };
 
-  return { products, loading, addProduct, updateProduct, deleteProduct, uploadProductVideo, refetch: load };
+  return { products, loading, addProduct, updateProduct, deleteProduct, uploadProductVideo, uploadProductImage, refetch: load };
 }

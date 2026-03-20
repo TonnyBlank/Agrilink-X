@@ -195,14 +195,13 @@ export default function MyFarm() {
   return (
     <DashboardShell title="My Farm">
       <div className="space-y-6">
-        <section className="relative overflow-hidden rounded-[2rem] border border-emerald-200/70 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.2),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.14),_transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.98),rgba(240,253,250,0.92))] p-6 shadow-[0_20px_60px_-28px_rgba(5,150,105,0.35)]">
-          <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-amber-200/25 blur-3xl" />
-          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl space-y-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/60 bg-white/75 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
-                <Tractor className="h-3.5 w-3.5" />
-                Farm Command
-              </span>
+        <section className="space-y-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-3xl space-y-3">
+              <div className="flex items-center gap-2 text-emerald-700">
+                <Tractor className="h-4 w-4" />
+                <span className="text-sm font-semibold uppercase tracking-[0.2em]">Farm Command</span>
+              </div>
               <div>
                 <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
                   Build a stronger farm profile buyers can trust
@@ -213,22 +212,34 @@ export default function MyFarm() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-2xl border border-white/70 bg-white/80 p-4 backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Profile</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{profileCompletion.percent}%</p>
+            <div className="grid grid-cols-2 gap-2 lg:w-[420px] lg:shrink-0">
+              <div className="rounded-lg bg-muted/35 p-3">
+                <div className="flex items-center gap-2 text-emerald-700">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Profile</p>
+                </div>
+                <p className="mt-2 font-display text-2xl font-bold text-foreground">{profileCompletion.percent}%</p>
               </div>
-              <div className="rounded-2xl border border-white/70 bg-white/80 p-4 backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Listings</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{farmInsights.totalListings}</p>
+              <div className="rounded-lg bg-muted/35 p-3">
+                <div className="flex items-center gap-2 text-emerald-700">
+                  <Package className="h-4 w-4" />
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Listings</p>
+                </div>
+                <p className="mt-2 font-display text-2xl font-bold text-foreground">{farmInsights.totalListings}</p>
               </div>
-              <div className="rounded-2xl border border-white/70 bg-white/80 p-4 backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Video</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{farmInsights.videoListings}</p>
+              <div className="rounded-lg bg-muted/35 p-3">
+                <div className="flex items-center gap-2 text-emerald-700">
+                  <Video className="h-4 w-4" />
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Video</p>
+                </div>
+                <p className="mt-2 font-display text-2xl font-bold text-foreground">{farmInsights.videoListings}</p>
               </div>
-              <div className="rounded-2xl border border-white/70 bg-white/80 p-4 backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Stock</p>
-                <p className="mt-2 font-display text-3xl font-bold text-foreground">{farmInsights.totalStock}</p>
+              <div className="rounded-lg bg-muted/35 p-3">
+                <div className="flex items-center gap-2 text-emerald-700">
+                  <Sprout className="h-4 w-4" />
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Stock</p>
+                </div>
+                <p className="mt-2 font-display text-2xl font-bold text-foreground">{farmInsights.totalStock}</p>
               </div>
             </div>
           </div>
