@@ -5,6 +5,8 @@ import { apiFetch } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useFollowing } from "@/hooks/useFollowing";
 
 type FarmerProfileData = {
   full_name: string | null;
@@ -17,6 +19,8 @@ type FarmerProfileData = {
 };
 
 export default function FarmerProfile() {
+  const { user } = useAuth();
+  const { isFollowing, toggleFollow } = useFollowing();
   const { userId } = useParams();
   const [profile, setProfile] = useState<FarmerProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,11 +80,23 @@ export default function FarmerProfile() {
                   </p>
                 </div>
               </div>
-              <Button asChild className="rounded-xl">
-                <Link to="/dashboard/messages">
-                  <MessageCircle className="mr-2 h-4 w-4" /> Message Farmer
-                </Link>
-              </Button>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                {userId && userId !== user?.id && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-xl"
+                    onClick={() => toggleFollow(userId)}
+                  >
+                    {isFollowing(userId) ? "Following" : "Follow Farmer"}
+                  </Button>
+                )}
+                <Button asChild className="rounded-xl">
+                  <Link to="/dashboard/messages">
+                    <MessageCircle className="mr-2 h-4 w-4" /> Message Farmer
+                  </Link>
+                </Button>
+              </div>
             </div>
           </section>
 

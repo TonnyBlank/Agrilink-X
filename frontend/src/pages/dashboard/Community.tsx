@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
+import { useFollowing } from "@/hooks/useFollowing";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { motion } from "framer-motion";
-import { Heart, MessageSquare, Plus, Send, Trash2, Users, X } from "lucide-react";
+import { Heart, MessageSquare, Plus, Send, Trash2, UserPlus, Users, X } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
 
 const categories = ["All", "Tips", "Question", "News", "Weather", "General"] as const;
@@ -14,15 +15,16 @@ type Category = (typeof categories)[number];
 
 interface CommentItem {
   id: string;
+  authorId?: string | null;
   author: string;
   initials: string;
   body: string;
   createdAt: string;
-  isOwnedByCurrentUser?: boolean;
 }
 
 interface CommunityPost {
   id: string;
+  authorId?: string | null;
   author: string;
   initials: string;
   category: Exclude<Category, "All">;
@@ -31,13 +33,13 @@ interface CommunityPost {
   likes: number;
   likedByMe: boolean;
   createdAt: string;
-  isOwnedByCurrentUser?: boolean;
   comments: CommentItem[];
 }
 
 const initialPosts: CommunityPost[] = [
   {
     id: "post-1",
+    authorId: "farmer-mary-w",
     author: "Mary W.",
     initials: "MW",
     category: "Tips",
@@ -49,6 +51,7 @@ const initialPosts: CommunityPost[] = [
     comments: [
       {
         id: "comment-1",
+        authorId: "farmer-david-k",
         author: "David K.",
         initials: "DK",
         body: "I do the same and add compost one week before transplanting.",
@@ -58,6 +61,7 @@ const initialPosts: CommunityPost[] = [
   },
   {
     id: "post-2",
+    authorId: "farmer-john-k",
     author: "John K.",
     initials: "JK",
     category: "Question",
@@ -69,6 +73,7 @@ const initialPosts: CommunityPost[] = [
     comments: [
       {
         id: "comment-2",
+        authorId: "farmer-grace-m",
         author: "Grace M.",
         initials: "GM",
         body: "We removed badly affected plants quickly and controlled leafhoppers early.",
@@ -76,6 +81,7 @@ const initialPosts: CommunityPost[] = [
       },
       {
         id: "comment-3",
+        authorId: "farmer-peter-o",
         author: "Peter O.",
         initials: "PO",
         body: "Check your seed source too. Resistant varieties helped us last season.",
@@ -85,6 +91,7 @@ const initialPosts: CommunityPost[] = [
   },
   {
     id: "post-3",
+    authorId: "farmer-grace-m",
     author: "Grace M.",
     initials: "GM",
     category: "News",
@@ -97,6 +104,7 @@ const initialPosts: CommunityPost[] = [
   },
   {
     id: "post-4",
+    authorId: "farmer-peter-o",
     author: "Peter O.",
     initials: "PO",
     category: "Weather",
@@ -108,6 +116,7 @@ const initialPosts: CommunityPost[] = [
     comments: [
       {
         id: "comment-4",
+        authorId: "farmer-mary-w",
         author: "Mary W.",
         initials: "MW",
         body: "I moved my onion harvest indoors this morning for the same reason.",
@@ -141,6 +150,7 @@ function formatRelativeTime(value: string) {
 
 export default function Community() {
   const { profile, user } = useAuth();
+  const { isFollowing, followingIds, toggleFollow } = useFollowing();
   const [activeCat, setActiveCat] = useState<Category>("All");
   const [posts, setPosts] = useLocalStorage<CommunityPost[]>("agrixl-community-posts", initialPosts);
   const [title, setTitle] = useState("");
@@ -152,11 +162,22 @@ export default function Community() {
 
   const currentAuthor = profile?.full_name?.trim() || user?.user_metadata?.full_name?.trim() || user?.email || "You";
   const currentInitials = useMemo(() => buildInitials(currentAuthor), [currentAuthor]);
+  const currentUserId = user?.id ?? null;
+
+  const followScopedPosts = useMemo(
+    () =>
+      posts.filter((post) => {
+        if (post.authorId && post.authorId === currentUserId) return true;
+        if (post.authorId && followingIds.includes(post.authorId)) return true;
+        return false;
+      }),
+    [currentUserId, followingIds, posts],
+  );
 
   const filteredPosts = useMemo(() => {
-    const visiblePosts = activeCat === "All" ? posts : posts.filter((post) => post.category === activeCat);
+    const visiblePosts = activeCat === "All" ? followScopedPosts : followScopedPosts.filter((post) => post.category === activeCat);
     return [...visiblePosts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [activeCat, posts]);
+  }, [activeCat, followScopedPosts]);
 
   const handleCreatePost = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -165,6 +186,7 @@ export default function Community() {
 
     const newPost: CommunityPost = {
       id: `post-${crypto.randomUUID()}`,
+      authorId: currentUserId,
       author: currentAuthor,
       initials: currentInitials || "YO",
       category,
@@ -173,7 +195,6 @@ export default function Community() {
       likes: 0,
       likedByMe: false,
       createdAt: new Date().toISOString(),
-      isOwnedByCurrentUser: true,
       comments: [],
     };
 
@@ -205,11 +226,11 @@ export default function Community() {
 
     const comment: CommentItem = {
       id: `comment-${crypto.randomUUID()}`,
+      authorId: currentUserId,
       author: currentAuthor,
       initials: currentInitials || "YO",
       body: draft,
       createdAt: new Date().toISOString(),
-      isOwnedByCurrentUser: true,
     };
 
     setPosts((currentPosts) =>
@@ -222,7 +243,9 @@ export default function Community() {
   };
 
   const handleDeletePost = (postId: string) => {
-    setPosts((currentPosts) => currentPosts.filter((post) => post.id !== postId));
+    setPosts((currentPosts) =>
+      currentPosts.filter((post) => !(post.id === postId && post.authorId && post.authorId === currentUserId)),
+    );
     if (expandedPostId === postId) {
       setExpandedPostId(null);
     }
@@ -232,7 +255,12 @@ export default function Community() {
     setPosts((currentPosts) =>
       currentPosts.map((post) =>
         post.id === postId
-          ? { ...post, comments: post.comments.filter((comment) => comment.id !== commentId) }
+          ? {
+              ...post,
+              comments: post.comments.filter(
+                (comment) => !(comment.id === commentId && comment.authorId && comment.authorId === currentUserId),
+              ),
+            }
           : post,
       ),
     );
@@ -245,7 +273,7 @@ export default function Community() {
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Users className="h-4 w-4 text-primary" />
             <span>
-              <span className="font-semibold text-foreground">{posts.length}</span> active discussions
+              <span className="font-semibold text-foreground">{followScopedPosts.length}</span> active discussions
             </span>
           </div>
           <Button
@@ -321,6 +349,12 @@ export default function Community() {
         )}
       </div>
 
+      {!followingIds.length && !posts.some((post) => post.authorId === currentUserId) && (
+        <div className="mb-6 rounded-[1.5rem] border border-dashed border-border bg-white/80 p-5 text-sm text-muted-foreground">
+          Follow farmers to build your real community feed. Tips, Question, News, Weather, and General posts now come from farmers you follow.
+        </div>
+      )}
+
       <div className="mb-6 flex flex-wrap gap-2">
         {categories.map((item) => (
           <button
@@ -336,8 +370,14 @@ export default function Community() {
       </div>
 
       <div className="space-y-3">
+        {!filteredPosts.length && (
+          <div className="bento-card py-12 text-center text-sm text-muted-foreground">
+            No posts from the farmers you follow yet. Follow farmers from Community or their profile pages to build your feed.
+          </div>
+        )}
         {filteredPosts.map((post, index) => {
           const commentsOpen = expandedPostId === post.id;
+          const canDeletePost = Boolean(currentUserId && post.authorId && post.authorId === currentUserId);
 
           return (
             <motion.div
@@ -356,7 +396,18 @@ export default function Community() {
                     <span className="text-sm font-medium text-foreground">{post.author}</span>
                     <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{post.category}</span>
                     <span className="text-[10px] text-muted-foreground sm:ml-auto">{formatRelativeTime(post.createdAt)}</span>
-                    {post.isOwnedByCurrentUser && (
+                    {post.authorId && post.authorId !== currentUserId && (
+                      <button
+                        onClick={() => toggleFollow(post.authorId!)}
+                        className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] transition-colors ${
+                          isFollowing(post.authorId) ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground hover:text-primary"
+                        }`}
+                      >
+                        <UserPlus className="h-3 w-3" />
+                        {isFollowing(post.authorId) ? "Following" : "Follow"}
+                      </button>
+                    )}
+                    {canDeletePost && (
                       <button
                         onClick={() => handleDeletePost(post.id)}
                         className="flex items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-destructive"
@@ -400,7 +451,7 @@ export default function Community() {
                                 </div>
                                 <span className="text-xs font-semibold text-foreground">{comment.author}</span>
                                 <span className="text-[10px] text-muted-foreground">{formatRelativeTime(comment.createdAt)}</span>
-                                {comment.isOwnedByCurrentUser && (
+                                {Boolean(currentUserId && comment.authorId && comment.authorId === currentUserId) && (
                                   <button
                                     onClick={() => handleDeleteComment(post.id, comment.id)}
                                     className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-destructive"
