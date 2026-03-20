@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# AgriLink X Frontend
 
 TODO: Document your project here
