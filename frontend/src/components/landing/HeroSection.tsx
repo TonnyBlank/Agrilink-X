@@ -25,7 +25,7 @@ export default function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <span className="mb-4 inline-flex items-center gap-3 font-display text-2xl font-black tracking-tight text-black md:text-3xl">
+            <span className="mb-4 inline-flex items-center gap-3 font-display text-2xl font-black tracking-tight text-black dark:text-white md:text-3xl">
               <span className="h-3 w-3 rounded-full bg-agri-gold-500 shadow-[0_0_16px_rgba(234,179,8,0.95)] animate-pulse" />
               Revolutionizing Kenyan Agriculture
             </span>

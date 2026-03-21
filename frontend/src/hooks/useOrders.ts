@@ -24,7 +24,7 @@ export type Order = {
   notes: string | null;
   created_at: string;
   updated_at: string;
-  product?: { name: string; image_emoji: string | null } | null;
+  product?: { name: string; image_emoji: string | null; cover_image_url: string | null } | null;
   buyer_profile?: { full_name: string | null } | null;
   farmer_profile?: { full_name: string | null } | null;
 };
@@ -38,7 +38,7 @@ async function hydrateOrders(rows: OrderRow[]) {
   const userIds = Array.from(new Set(rows.flatMap((order) => [order.buyer_id, order.farmer_id])));
 
   const [{ data: products, error: productsError }, { data: profiles, error: profilesError }] = await Promise.all([
-    supabase.from("products").select("id, name, image_emoji").in("id", productIds),
+    supabase.from("products").select("id, name, image_emoji, cover_image_url").in("id", productIds),
     supabase.from("profiles").select("user_id, full_name").in("user_id", userIds),
   ]);
 
@@ -51,9 +51,10 @@ async function hydrateOrders(rows: OrderRow[]) {
   return rows.map((order) => ({
     ...order,
     product: productsById.get(order.product_id)
-      ? {
+        ? {
           name: productsById.get(order.product_id)!.name,
           image_emoji: productsById.get(order.product_id)!.image_emoji,
+          cover_image_url: productsById.get(order.product_id)!.cover_image_url,
         }
       : null,
     buyer_profile: profilesByUserId.get(order.buyer_id)

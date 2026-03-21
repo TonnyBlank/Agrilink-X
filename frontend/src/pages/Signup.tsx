@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,6 +19,15 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords do not match",
+        description: "Please make sure both password fields are the same.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
@@ -88,6 +98,27 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min 6 characters"
+                  minLength={6}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(!showPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                >
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showPw ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your password"
                   minLength={6}
                   required
                 />

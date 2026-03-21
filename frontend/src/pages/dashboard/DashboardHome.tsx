@@ -20,7 +20,7 @@ import { useWeather } from "@/hooks/useWeather";
 import { useOrders } from "@/hooks/useOrders";
 import { useMyProducts } from "@/hooks/useProducts";
 import { Link } from "react-router-dom";
-import heroFarmImage from "@/assets/hero-farm.jpg";
+import maizeImage from "@/assets/maize.jpg";
 
 const revenueCardLabel = "Revenue This Week";
 
@@ -63,7 +63,7 @@ const marketSignals = [
     crop: "Maize",
     trend: "Stable",
     detail: "Hold inventory and watch western counties for movement.",
-    image: heroFarmImage,
+    image: maizeImage,
   },
   {
     crop: "Onions",

@@ -392,7 +392,7 @@ function MicroLoansDashboard() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
                 <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-500" />
                 {loading
                   ? "Syncing live data..."
@@ -573,18 +573,18 @@ function MicroLoansDashboard() {
           {fundingOptions.map((option, index) => {
             const accentTone =
               index === 0
-                ? "from-emerald-50 via-white to-emerald-100/70 border-emerald-200/80"
+                ? "border-emerald-200/80 from-emerald-50 via-white to-emerald-100/70 dark:border-emerald-500/30 dark:from-emerald-500/12 dark:via-slate-950/95 dark:to-emerald-500/8"
                 : index === 1
-                  ? "from-teal-50 via-white to-cyan-100/70 border-teal-200/80"
-                  : "from-lime-50 via-white to-emerald-100/70 border-lime-200/80";
+                  ? "border-teal-200/80 from-teal-50 via-white to-cyan-100/70 dark:border-cyan-500/30 dark:from-cyan-500/12 dark:via-slate-950/95 dark:to-teal-500/8"
+                  : "border-lime-200/80 from-lime-50 via-white to-emerald-100/70 dark:border-lime-500/30 dark:from-lime-500/12 dark:via-slate-950/95 dark:to-emerald-500/8";
 
             return (
               <div
                 key={option.title}
-                className="flex h-full min-w-0 flex-col rounded-[1.75rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.94))] p-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.3)]"
+                className="flex h-full min-w-0 flex-col rounded-[1.75rem] border border-border/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.94))] p-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.3)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,0.94))] dark:shadow-[0_18px_40px_-28px_rgba(0,0,0,0.55)]"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span className="rounded-full bg-foreground/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  <span className="rounded-full bg-foreground/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground dark:bg-white/5 dark:text-slate-300">
                     Product
                   </span>
                   <span className="text-sm font-medium text-muted-foreground">{option.speed}</span>
@@ -595,13 +595,13 @@ function MicroLoansDashboard() {
                 </p>
 
                 <div className={`mt-4 rounded-[1.5rem] border bg-gradient-to-br p-5 ${accentTone}`}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-800/70">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-800/70 dark:text-emerald-200/80">
                     Amount Available
                   </p>
-                  <p className="mt-3 break-words font-display text-[1.75rem] font-black leading-tight tracking-tight text-emerald-900 sm:text-[2rem]">
+                  <p className="mt-3 break-words font-display text-[1.75rem] font-black leading-tight tracking-tight text-emerald-950 sm:text-[2rem] dark:text-white">
                     {option.amount}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-emerald-900/70">
+                  <p className="mt-2 text-sm leading-6 text-emerald-900/70 dark:text-slate-300">
                     Estimated offer based on your current financing ceiling.
                   </p>
                 </div>
@@ -609,13 +609,13 @@ function MicroLoansDashboard() {
                 <p className="mt-4 text-sm leading-7 text-muted-foreground">{option.detail}</p>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="rounded-[1rem] border border-border bg-background px-4 py-3">
+                  <div className="rounded-[1rem] border border-border bg-background px-4 py-3 dark:border-white/10 dark:bg-slate-950/80">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                       Interest
                     </p>
                     <p className="mt-1 text-sm font-semibold leading-6 text-foreground">{option.interestRate}%</p>
                   </div>
-                  <div className="rounded-[1rem] border border-border bg-background px-4 py-3">
+                  <div className="rounded-[1rem] border border-border bg-background px-4 py-3 dark:border-white/10 dark:bg-slate-950/80">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                       Repayment
                     </p>
@@ -627,13 +627,13 @@ function MicroLoansDashboard() {
 
                 <div className="mt-auto pt-5">
                   <div className="flex flex-wrap gap-3">
-                    <div className="rounded-[1rem] border border-border bg-background px-4 py-3">
+                    <div className="rounded-[1rem] border border-border bg-background px-4 py-3 dark:border-white/10 dark:bg-slate-950/80">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                         Speed
                       </p>
                       <p className="mt-1 text-sm font-semibold leading-6 text-foreground">{option.speed}</p>
                     </div>
-                    <div className="rounded-[1rem] border border-border bg-background px-4 py-3">
+                    <div className="rounded-[1rem] border border-border bg-background px-4 py-3 dark:border-white/10 dark:bg-slate-950/80">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                         Status
                       </p>

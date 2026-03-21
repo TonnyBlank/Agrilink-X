@@ -14,7 +14,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useOrders, type Order } from "@/hooks/useOrders";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,13 +32,13 @@ const statusColors: Record<string, string> = {
   cancelled: "bg-destructive/15 text-destructive border-destructive/20",
 };
 
-const emojiFallback = "Produce";
 const exportRanges = [
   { label: "1 day", days: 1 },
   { label: "1 week", days: 7 },
   { label: "30 days", days: 30 },
   { label: "1 year", days: 365 },
 ];
+const TRANSACTIONS_PER_PAGE = 10;
 const receiptCompany = {
   name: "AgriLink X",
   legal: "AgriLink X Marketplace Ltd.",
@@ -65,6 +65,42 @@ function matchesTransactionSearch(order: Order, searchTerm: string) {
 
 function getTransactionReference(order: Order) {
   return order.payment_ref || order.checkout_request_id || order.merchant_request_id || order.id;
+}
+
+function formatTransactionDateTime(value: string) {
+  const date = new Date(value);
+  return date.toLocaleString([], {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function ProductThumb({ order, className }: { order: Order; className?: string }) {
+  if (order.product?.cover_image_url) {
+    return (
+      <img
+        src={order.product.cover_image_url}
+        alt={order.product?.name || "Product"}
+        className={className || "h-9 w-9 rounded-[0.8rem] object-cover"}
+      />
+    );
+  }
+
+  const fallbackLabel = order.product?.name?.trim().charAt(0).toUpperCase() || "?";
+
+  return (
+    <div
+      className={
+        className ||
+        "flex h-9 w-9 items-center justify-center rounded-[0.8rem] bg-primary/10 text-[10px] font-bold uppercase tracking-[0.08em] text-primary"
+      }
+    >
+      {fallbackLabel}
+    </div>
+  );
 }
 
 function downloadHtml(filename: string, html: string) {
@@ -401,8 +437,44 @@ function OrderEmptyState({ icon: Icon, title, detail }: { icon: typeof Package; 
   return <div className="rounded-[1.75rem] border border-dashed border-border bg-white/80 py-14 text-center shadow-sm dark:bg-card/80"><Icon className="mx-auto mb-4 h-12 w-12 text-muted-foreground" /><h3 className="font-display text-xl font-bold text-foreground">{title}</h3><p className="mt-2 text-sm text-muted-foreground">{detail}</p></div>;
 }
 
+function PaginationControls({
+  page,
+  totalItems,
+  onPageChange,
+}: {
+  page: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
+}) {
+  const totalPages = Math.max(1, Math.ceil(totalItems / TRANSACTIONS_PER_PAGE));
+  const startItem = totalItems === 0 ? 0 : (page - 1) * TRANSACTIONS_PER_PAGE + 1;
+  const endItem = Math.min(page * TRANSACTIONS_PER_PAGE, totalItems);
+
+  if (totalItems <= TRANSACTIONS_PER_PAGE) return null;
+
+  return (
+    <div className="flex flex-col gap-3 rounded-[1rem] border border-border/70 bg-white/90 p-4 shadow-[0_12px_24px_-24px_rgba(15,23,42,0.18)] sm:flex-row sm:items-center sm:justify-between dark:bg-card/90">
+      <p className="text-sm text-muted-foreground">
+        Showing {startItem}-{endItem} of {totalItems} transactions
+      </p>
+      <div className="flex items-center gap-2">
+        <Button type="button" variant="outline" className="rounded-xl" disabled={page === 1} onClick={() => onPageChange(page - 1)}>
+          Previous
+        </Button>
+        <span className="text-sm font-medium text-foreground">
+          Page {page} of {totalPages}
+        </span>
+        <Button type="button" className="rounded-xl" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function OrdersDesktopTable(props: {
   orders: Order[];
+  startIndex?: number;
   view: "selling" | "buying";
   busyOrderId: string | null;
   paymentPhoneByOrder: Record<string, string>;
@@ -412,13 +484,14 @@ function OrdersDesktopTable(props: {
   onRefreshPayment: (orderId: string) => void;
   onViewReceipt: (order: Order) => void;
 }) {
-  const { orders, view, busyOrderId, paymentPhoneByOrder, onPhoneChange, onChangeStatus, onStartPayment, onRefreshPayment, onViewReceipt } = props;
+  const { orders, startIndex = 0, view, busyOrderId, paymentPhoneByOrder, onPhoneChange, onChangeStatus, onStartPayment, onRefreshPayment, onViewReceipt } = props;
 
   return (
     <div className="overflow-x-auto rounded-[1rem] border border-border/70 bg-white/90 shadow-[0_12px_24px_-24px_rgba(15,23,42,0.18)] dark:bg-card/90">
       <table className="w-full min-w-[1220px] border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/25 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <th className="px-4 py-3">No.</th>
             <th className="px-4 py-3">Order</th>
             <th className="px-4 py-3">Counterparty</th>
             <th className="px-4 py-3">Qty</th>
@@ -430,7 +503,7 @@ function OrdersDesktopTable(props: {
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => {
+          {orders.map((order, index) => {
             const personLabel = view === "selling" ? "Buyer" : "Seller";
             const personName =
               view === "selling" ? order.buyer_profile?.full_name || "Buyer" : order.farmer_profile?.full_name || "Farmer";
@@ -447,14 +520,16 @@ function OrdersDesktopTable(props: {
 
             return (
               <tr key={order.id} className="border-b border-border/70 align-top text-sm last:border-b-0">
+                <td className="px-4 py-3.5 font-semibold text-foreground">{startIndex + index + 1}</td>
                 <td className="px-4 py-3.5">
                   <div className="flex min-w-0 items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.8rem] bg-primary/10 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
-                      {order.product?.image_emoji || emojiFallback}
-                    </div>
+                    <ProductThumb
+                      order={order}
+                      className="h-9 w-9 shrink-0 rounded-[0.8rem] border border-border/60 object-cover"
+                    />
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-foreground">{order.product?.name || "Product"}</p>
-                      <p className="truncate text-xs text-muted-foreground">Order {order.id.slice(0, 8)} | {new Date(order.created_at).toLocaleDateString()}</p>
+                      <p className="truncate text-xs text-muted-foreground">Order {order.id.slice(0, 8)} | {formatTransactionDateTime(order.created_at)}</p>
                       <p className="truncate text-xs text-muted-foreground">Transaction {getTransactionReference(order)}</p>
                       {order.notes && <p className="mt-1 max-w-[220px] truncate text-xs text-muted-foreground">{order.notes}</p>}
                     </div>
@@ -510,15 +585,17 @@ function OrdersDesktopTable(props: {
 
 function ShippingDesktopTable(props: {
   orders: Order[];
+  startIndex?: number;
   sellingOrders: Order[];
 }) {
-  const { orders, sellingOrders } = props;
+  const { orders, startIndex = 0, sellingOrders } = props;
 
   return (
     <div className="overflow-x-auto rounded-[1rem] border border-border/70 bg-white/90 shadow-[0_12px_24px_-24px_rgba(15,23,42,0.18)] dark:bg-card/90">
       <table className="w-full min-w-[1040px] border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/25 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <th className="px-4 py-3">No.</th>
             <th className="px-4 py-3">Order</th>
             <th className="px-4 py-3">Lane</th>
             <th className="px-4 py-3">Counterparty</th>
@@ -529,7 +606,7 @@ function ShippingDesktopTable(props: {
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => {
+          {orders.map((order, index) => {
             const isSelling = sellingOrders.some((sellingOrder) => sellingOrder.id === order.id);
             const counterparty = isSelling ? order.buyer_profile?.full_name || "Buyer" : order.farmer_profile?.full_name || "Farmer";
             const shippingCopy =
@@ -537,14 +614,16 @@ function ShippingDesktopTable(props: {
 
             return (
               <tr key={order.id} className="border-b border-border/70 align-top text-sm last:border-b-0">
+                <td className="px-4 py-3.5 font-semibold text-foreground">{startIndex + index + 1}</td>
                 <td className="px-4 py-3.5">
                   <div className="flex min-w-0 items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.8rem] bg-primary/10 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
-                      {order.product?.image_emoji || emojiFallback}
-                    </div>
+                    <ProductThumb
+                      order={order}
+                      className="h-9 w-9 shrink-0 rounded-[0.8rem] border border-border/60 object-cover"
+                    />
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-foreground">{order.product?.name || "Product"}</p>
-                      <p className="truncate text-xs text-muted-foreground">Order {order.id.slice(0, 8)} | {new Date(order.created_at).toLocaleDateString()}</p>
+                      <p className="truncate text-xs text-muted-foreground">Order {order.id.slice(0, 8)} | {formatTransactionDateTime(order.created_at)}</p>
                       <p className="truncate text-xs text-muted-foreground">Transaction {getTransactionReference(order)}</p>
                     </div>
                   </div>
@@ -582,9 +661,10 @@ function ShippingCard(props: {
       className="rounded-[1rem] border border-border/70 bg-white/90 p-3 shadow-[0_12px_22px_-24px_rgba(15,23,42,0.18)] lg:hidden dark:bg-card/90 dark:shadow-[0_12px_22px_-24px_rgba(0,0,0,0.4)]"
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] bg-primary/10 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
-          {order.product?.image_emoji || emojiFallback}
-        </div>
+        <ProductThumb
+          order={order}
+          className="h-10 w-10 shrink-0 rounded-[0.85rem] border border-border/60 object-cover"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
@@ -642,7 +722,7 @@ function OrderCard(props: {
           ? "Delivered"
         : "Awaiting shipment";
   const paidLabel = order.paid_at ? "Paid" : order.payment_status;
-  const createdDate = new Date(order.created_at).toLocaleDateString();
+  const createdDate = formatTransactionDateTime(order.created_at);
   const transactionReference = getTransactionReference(order);
 
   return (
@@ -653,9 +733,10 @@ function OrderCard(props: {
     >
         <div className="hidden min-w-[1080px] items-center gap-3 lg:grid lg:grid-cols-[minmax(220px,2fr)_minmax(140px,1.2fr)_90px_120px_110px_170px_auto]">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] bg-primary/10 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
-            {order.product?.image_emoji || emojiFallback}
-          </div>
+          <ProductThumb
+            order={order}
+            className="h-10 w-10 shrink-0 rounded-[0.85rem] border border-border/60 object-cover"
+          />
           <div className="min-w-0">
             <p className="truncate font-display text-base font-bold text-foreground">{order.product?.name || "Product"}</p>
             <p className="truncate text-xs text-muted-foreground">Order {order.id.slice(0, 8)} • {createdDate}</p>
@@ -705,9 +786,10 @@ function OrderCard(props: {
 
       <div className="space-y-3 lg:hidden">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] bg-primary/10 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
-            {order.product?.image_emoji || emojiFallback}
-          </div>
+          <ProductThumb
+            order={order}
+            className="h-10 w-10 shrink-0 rounded-[0.85rem] border border-border/60 object-cover"
+          />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
@@ -730,7 +812,7 @@ function OrderCard(props: {
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 border-t border-border/70 pt-2">
+        <div className="grid grid-cols-2 gap-2 border-t border-border/70 pt-2 [&>*]:w-full [&>*]:justify-center">
           <Button asChild size="sm" variant="outline" className="h-8 rounded-xl px-3">
             <Link to="/dashboard/messages">
               <MessageCircle className="mr-1 h-3 w-3" /> {view === "selling" ? "Message Buyer" : "Message Seller"}
@@ -742,13 +824,18 @@ function OrderCard(props: {
       </div>
 
       {view === "buying" && order.payment_status !== "paid" && order.status !== "cancelled" && (
-        <div className="mt-3 flex flex-col gap-2 border-t border-border/70 pt-2.5 sm:flex-row sm:flex-wrap">
-          <Input value={phoneNumber} onChange={(event) => onPhoneChange(event.target.value)} placeholder="2547XXXXXXXX" className="h-8 rounded-xl sm:max-w-[180px]" />
-          <Button size="sm" className="h-8 rounded-xl px-3" disabled={busy} onClick={onStartPayment}>
+        <div className="mt-3 grid grid-cols-2 gap-2 border-t border-border/70 pt-2.5 sm:flex sm:flex-row sm:flex-wrap">
+          <Input
+            value={phoneNumber}
+            onChange={(event) => onPhoneChange(event.target.value)}
+            placeholder="2547XXXXXXXX"
+            className="col-span-2 h-10 rounded-xl sm:max-w-[180px]"
+          />
+          <Button size="sm" className="h-9 rounded-xl px-3" disabled={busy} onClick={onStartPayment}>
             {busy ? <LoaderCircle className="mr-1 h-3 w-3 animate-spin" /> : <CreditCard className="mr-1 h-3 w-3" />}
             Pay Now
           </Button>
-          <Button size="sm" variant="outline" className="h-8 rounded-xl px-3" disabled={busy || !order.checkout_request_id} onClick={onRefreshPayment}>
+          <Button size="sm" variant="outline" className="h-9 rounded-xl px-3" disabled={busy || !order.checkout_request_id} onClick={onRefreshPayment}>
             <RefreshCw className="mr-1 h-3 w-3" /> Check Payment
           </Button>
         </div>
@@ -766,6 +853,9 @@ export default function Orders() {
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
   const [activeExportRange, setActiveExportRange] = useState<number>(30);
   const [transactionSearch, setTransactionSearch] = useState("");
+  const [sellingPage, setSellingPage] = useState(1);
+  const [buyingPage, setBuyingPage] = useState(1);
+  const [shippingPage, setShippingPage] = useState(1);
 
   const shippingOrders = useMemo(
     () =>
@@ -789,6 +879,33 @@ export default function Orders() {
   const filteredShippingOrders = useMemo(
     () => shippingOrders.filter((order) => matchesTransactionSearch(order, transactionSearch)),
     [shippingOrders, transactionSearch],
+  );
+
+  useEffect(() => {
+    setSellingPage(1);
+  }, [transactionSearch, filteredSellingOrders.length]);
+
+  useEffect(() => {
+    setBuyingPage(1);
+  }, [transactionSearch, filteredBuyingOrders.length]);
+
+  useEffect(() => {
+    setShippingPage(1);
+  }, [transactionSearch, filteredShippingOrders.length]);
+
+  const paginatedSellingOrders = useMemo(
+    () => filteredSellingOrders.slice((sellingPage - 1) * TRANSACTIONS_PER_PAGE, sellingPage * TRANSACTIONS_PER_PAGE),
+    [filteredSellingOrders, sellingPage],
+  );
+
+  const paginatedBuyingOrders = useMemo(
+    () => filteredBuyingOrders.slice((buyingPage - 1) * TRANSACTIONS_PER_PAGE, buyingPage * TRANSACTIONS_PER_PAGE),
+    [filteredBuyingOrders, buyingPage],
+  );
+
+  const paginatedShippingOrders = useMemo(
+    () => filteredShippingOrders.slice((shippingPage - 1) * TRANSACTIONS_PER_PAGE, shippingPage * TRANSACTIONS_PER_PAGE),
+    [filteredShippingOrders, shippingPage],
   );
 
   const summaryCards = useMemo(() => {
@@ -853,7 +970,7 @@ export default function Orders() {
             <td>KES ${Number(order.total_price).toLocaleString()}</td>
             <td>${order.status}</td>
             <td>${order.payment_status}</td>
-            <td>${new Date(order.created_at).toLocaleDateString()}</td>
+            <td>${formatTransactionDateTime(order.created_at)}</td>
           </tr>
         `;
       })
@@ -1078,7 +1195,8 @@ export default function Orders() {
               {!!filteredSellingOrders.length && (
                 <>
                   <OrdersDesktopTable
-                    orders={filteredSellingOrders}
+                    orders={paginatedSellingOrders}
+                    startIndex={(sellingPage - 1) * TRANSACTIONS_PER_PAGE}
                     view="selling"
                     busyOrderId={busyOrderId}
                     paymentPhoneByOrder={paymentPhoneByOrder}
@@ -1088,6 +1206,7 @@ export default function Orders() {
                     onRefreshPayment={(orderId) => void handleRefreshPayment(orderId)}
                     onViewReceipt={setReceiptOrder}
                   />
+                  <PaginationControls page={sellingPage} totalItems={filteredSellingOrders.length} onPageChange={setSellingPage} />
                 </>
               )}
             </TabsContent>
@@ -1108,7 +1227,8 @@ export default function Orders() {
               {!!filteredBuyingOrders.length && (
                 <>
                   <OrdersDesktopTable
-                    orders={filteredBuyingOrders}
+                    orders={paginatedBuyingOrders}
+                    startIndex={(buyingPage - 1) * TRANSACTIONS_PER_PAGE}
                     view="buying"
                     busyOrderId={busyOrderId}
                     paymentPhoneByOrder={paymentPhoneByOrder}
@@ -1118,6 +1238,7 @@ export default function Orders() {
                     onRefreshPayment={(orderId) => void handleRefreshPayment(orderId)}
                     onViewReceipt={setReceiptOrder}
                   />
+                  <PaginationControls page={buyingPage} totalItems={filteredBuyingOrders.length} onPageChange={setBuyingPage} />
                 </>
               )}
             </TabsContent>
@@ -1137,7 +1258,12 @@ export default function Orders() {
             )}
             {!!filteredShippingOrders.length && (
               <>
-                <ShippingDesktopTable orders={filteredShippingOrders} sellingOrders={sellingOrders} />
+                <ShippingDesktopTable
+                  orders={paginatedShippingOrders}
+                  startIndex={(shippingPage - 1) * TRANSACTIONS_PER_PAGE}
+                  sellingOrders={sellingOrders}
+                />
+                <PaginationControls page={shippingPage} totalItems={filteredShippingOrders.length} onPageChange={setShippingPage} />
               </>
             )}
           </TabsContent>
