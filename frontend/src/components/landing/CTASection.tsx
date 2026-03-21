@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 export default function CTASection() {
   return (
@@ -17,7 +18,7 @@ export default function CTASection() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-primary-foreground mb-6 leading-tight">
-            The Future of African
+            The Future of Kenyan
             <br />
             Agriculture Starts <span className="text-gradient-gold">Now</span>
           </h2>
@@ -26,16 +27,17 @@ export default function CTASection() {
             farm to table across Kenya.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-base px-10 h-14 bg-gold-gradient text-foreground font-semibold hover:opacity-90">
-              Join the Waitlist
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button asChild size="lg" className="h-14 px-10 text-base font-semibold text-foreground hover:opacity-90 bg-gold-gradient">
+              <Link to="/login">
+                Join
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-base px-10 h-14 border-agri-green-200/30 text-primary-foreground hover:bg-agri-green-700/30 hover:text-primary-foreground"
-            >
-              Talk to Our Team
+            <Button asChild size="lg" className="h-14 px-10 text-base font-semibold text-white hover:bg-[#0b4a24] bg-[#0f5c2e]">
+              <a href="#buyer-enterprise">
+                Buyer Enterprise
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
             </Button>
           </div>
         </motion.div>

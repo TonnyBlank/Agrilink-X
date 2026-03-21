@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-farm.jpg";
+import { Link } from "react-router-dom";
 
 export default function HeroSection() {
   return (
@@ -24,9 +25,9 @@ export default function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-agri-green-700/50 border border-agri-green-200/20 text-agri-green-200 text-sm font-medium mb-6">
-              <span className="w-2 h-2 rounded-full bg-agri-gold-500 animate-pulse" />
-              Revolutionizing African Agriculture
+            <span className="mb-4 inline-flex items-center gap-3 font-display text-2xl font-black tracking-tight text-black md:text-3xl">
+              <span className="h-3 w-3 rounded-full bg-agri-gold-500 shadow-[0_0_16px_rgba(234,179,8,0.95)] animate-pulse" />
+              Revolutionizing Kenyan Agriculture
             </span>
           </motion.div>
 
@@ -59,17 +60,17 @@ export default function HeroSection() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4"
           >
-            <Button size="lg" className="text-base px-8 h-14 bg-gold-gradient text-foreground font-semibold hover:opacity-90 transition-opacity">
-              Join the Waitlist
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button asChild size="lg" className="h-14 px-8 text-base font-semibold text-foreground shadow-[0_14px_28px_-18px_rgba(0,0,0,0.45)] transition-opacity hover:opacity-90 bg-gold-gradient">
+              <Link to="/login">
+                Join
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-base px-8 h-14 border-agri-green-200/30 text-primary-foreground hover:bg-agri-green-700/30 hover:text-primary-foreground"
-            >
-              <Play className="mr-2 h-5 w-5" />
-              Watch Demo
+            <Button asChild size="lg" className="h-14 px-8 text-base font-semibold text-white shadow-[0_14px_28px_-18px_rgba(0,0,0,0.45)] transition-colors hover:bg-[#0b4a24] bg-[#0f5c2e]">
+              <a href="#buyer-enterprise">
+                Micro Loan
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
             </Button>
           </motion.div>
 

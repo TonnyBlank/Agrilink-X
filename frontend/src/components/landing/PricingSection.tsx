@@ -137,6 +137,7 @@ export default function PricingSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
+                id={plan.name === "Buyer Enterprise" ? "buyer-enterprise" : undefined}
                 className={`relative rounded-2xl p-8 flex flex-col ${
                   plan.featured
                     ? "bg-primary text-primary-foreground shadow-glow border-2 border-primary md:scale-105"

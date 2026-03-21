@@ -1,4 +1,5 @@
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   CheckCircle,
   Clock,
@@ -31,6 +32,7 @@ export default function Profile() {
   const { profile, refreshProfile, user } = useAuth();
   const { verification, uploading, loading, uploadDocuments } = useIdVerification();
   const { theme, setTheme } = useTheme();
+  const [searchParams] = useSearchParams();
   const status = verification?.status || "unverified";
 
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -80,6 +82,20 @@ export default function Profile() {
     const completed = fields.filter(Boolean).length;
     return Math.max(20, Math.round((completed / fields.length) * 100));
   }, [profileForm]);
+
+  useEffect(() => {
+    const section = searchParams.get("section");
+    if (
+      section === "personal" ||
+      section === "contact" ||
+      section === "payout" ||
+      section === "appearance" ||
+      section === "security" ||
+      section === "verification"
+    ) {
+      setActiveSection(section);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     return () => {

@@ -13,7 +13,6 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import DashboardRedirect from "./pages/DashboardRedirect";
 import DashboardHome from "./pages/dashboard/DashboardHome";
-import BuyerEnterpriseDashboard from "./pages/dashboard/BuyerEnterpriseDashboard";
 import PerformanceAnalytics from "./pages/dashboard/PerformanceAnalytics";
 import MyFarm from "./pages/dashboard/MyFarm";
 import MyProducts from "./pages/dashboard/MyProducts";
@@ -23,6 +22,7 @@ import AIScanner from "./pages/dashboard/AIScanner";
 import CropCalendar from "./pages/dashboard/CropCalendar";
 import Community from "./pages/dashboard/Community";
 import Messages from "./pages/dashboard/Messages";
+import MicroLoans from "./pages/dashboard/MicroLoans";
 import UpgradePlan from "./pages/dashboard/UpgradePlan";
 import Profile from "./pages/dashboard/Profile";
 import FarmerProfile from "./pages/dashboard/FarmerProfile";
@@ -46,7 +46,7 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>} />
             <Route path="/dashboard/free" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
             <Route path="/dashboard/pro" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
-            <Route path="/dashboard/enterprise" element={<ProtectedRoute><BuyerEnterpriseDashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/enterprise" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
             <Route path="/dashboard/analytics" element={<ProtectedRoute><PerformanceAnalytics /></ProtectedRoute>} />
             <Route path="/dashboard/farm" element={<ProtectedRoute><MyFarm /></ProtectedRoute>} />
             <Route path="/dashboard/products" element={<ProtectedRoute><MyProducts /></ProtectedRoute>} />
@@ -56,6 +56,7 @@ const App = () => (
             <Route path="/dashboard/calendar" element={<ProtectedRoute><CropCalendar /></ProtectedRoute>} />
             <Route path="/dashboard/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
             <Route path="/dashboard/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+            <Route path="/dashboard/micro-loans" element={<ProtectedRoute><MicroLoans /></ProtectedRoute>} />
             <Route path="/dashboard/upgrade" element={<ProtectedRoute><UpgradePlan /></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/dashboard/farmers/:userId" element={<ProtectedRoute><FarmerProfile /></ProtectedRoute>} />

@@ -12,6 +12,7 @@ import {
   Zap,
   LogOut,
   ChevronLeft,
+  CreditCard,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -53,13 +54,16 @@ const intelligenceNav = [
   { title: "Community", url: "/dashboard/community", icon: Users },
 ];
 
-const monetizeNav = [
-  { title: "Upgrade Plan", url: "/dashboard/upgrade", icon: Zap },
-];
+type NavItem = {
+  title: string;
+  url: string;
+  icon: typeof LayoutDashboard;
+  pro?: boolean;
+};
 
 interface NavGroupProps {
   label: string;
-  items: typeof mainNav;
+  items: NavItem[];
   collapsed: boolean;
 }
 
@@ -128,6 +132,10 @@ export function AppSidebar() {
   const { signOut, profile, role, user } = useAuth();
   const navigate = useNavigate();
   const showUpgradeLink = role === "farmer_free";
+  const growthNav: NavItem[] = [
+    { title: "Micro Loans", url: "/dashboard/micro-loans", icon: CreditCard, pro: true },
+    ...(showUpgradeLink ? [{ title: "Upgrade Plan", url: "/dashboard/upgrade", icon: Zap }] : []),
+  ];
   const displayName =
     profile?.full_name ||
     (typeof user?.user_metadata?.full_name === "string" ? user.user_metadata.full_name : null) ||
@@ -176,7 +184,7 @@ export function AppSidebar() {
         <NavGroup label="Farm Operations" items={farmerNav} collapsed={collapsed} />
         <NavGroup label="Trade" items={tradeNav} collapsed={collapsed} />
         <NavGroup label="Intelligence" items={intelligenceNav} collapsed={collapsed} />
-        {showUpgradeLink && <NavGroup label="Growth" items={monetizeNav} collapsed={collapsed} />}
+        <NavGroup label="Growth" items={growthNav} collapsed={collapsed} />
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">

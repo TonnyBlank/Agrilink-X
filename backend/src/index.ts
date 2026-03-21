@@ -9,6 +9,7 @@ import messagesRouter from "./routes/messages";
 import cropEventsRouter from "./routes/cropEvents";
 import profilesRouter from "./routes/profiles";
 import idVerificationRouter from "./routes/idVerification";
+import microLoansRouter from "./routes/microLoans";
 import paymentsRouter from "./routes/payments";
 import { errorHandler } from "./middleware/errorHandler";
 
@@ -50,6 +51,7 @@ app.use("/api/messages",        messagesRouter);
 app.use("/api/crop-events",     cropEventsRouter);
 app.use("/api/profiles",        profilesRouter);
 app.use("/api/id-verification", idVerificationRouter);
+app.use("/api/micro-loans",     microLoansRouter);
 app.use("/api/payments",        paymentsRouter);
 
 // ── 404 handler ─────────────────────────────────────────────────

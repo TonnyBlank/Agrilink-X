@@ -58,8 +58,10 @@ router.post(
           doc_url: frontUrlData?.signedUrl || frontPath,
           front_doc_url: frontUrlData?.signedUrl || frontPath,
           back_doc_url: backUrlData?.signedUrl || backPath,
-          status: "pending",
+          status: "verified",
           submitted_at: new Date().toISOString(),
+          reviewed_at: new Date().toISOString(),
+          reviewer_note: "Auto-verified on upload",
         },
         { onConflict: "user_id" },
       )

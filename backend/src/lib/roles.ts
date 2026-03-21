@@ -14,7 +14,14 @@ export async function resolveAppRole(
   requestedRole?: string,
 ): Promise<AppRole> {
   if (isAppRole(requestedRole)) {
-    return requestedRole;
+    const { data: hasRequestedRole, error: hasRoleError } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: requestedRole,
+    });
+
+    if (!hasRoleError && hasRequestedRole) {
+      return requestedRole;
+    }
   }
 
   const { data, error } = await supabase.rpc("get_user_role", { _user_id: userId });

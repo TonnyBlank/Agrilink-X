@@ -38,8 +38,9 @@ export default function Footer() {
         </div>
         <div className="border-t border-primary-foreground/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-primary-foreground/40">
-            © 2026 AgriLink X. All rights reserved. Made with ❤️ in Nairobi.
+            Copyright 2026 AgriLink X. All rights reserved. Made with tonny in Kakamega
           </p>
+        
           <div className="flex gap-6">
             {["Twitter", "LinkedIn", "Instagram"].map((s) => (
               <a key={s} href="#" className="text-xs text-primary-foreground/40 hover:text-primary-foreground/70 transition-colors">

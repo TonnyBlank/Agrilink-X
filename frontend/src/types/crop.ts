@@ -1,7 +1,7 @@
 export interface CropEvent {
-  id: number;
+  id: string;
   title: string;
-  type: 'planting' | 'fertilizing' | 'spraying' | 'harvesting' | 'irrigation' | 'pruning';
+  type: string;
   date: Date;
   crop: string;
   done: boolean;

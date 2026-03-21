@@ -4,11 +4,8 @@ import {
   TrendingUp,
   Shield,
   Truck,
-  BarChart3,
   Camera,
   CreditCard,
-  Wifi,
-  Mic,
   Users,
 } from "lucide-react";
 
@@ -16,7 +13,7 @@ const features = [
   {
     icon: Brain,
     title: "AI Farming Brain",
-    description: "Know what to plant, when to plant, and your expected profit — powered by weather, demand, and price data.",
+    description: "Know what to plant, when to plant, and your expected profit - powered by weather, demand, and price data.",
     tag: "Game Changer",
   },
   {
@@ -38,12 +35,6 @@ const features = [
     tag: "Logistics",
   },
   {
-    icon: BarChart3,
-    title: "Market Intelligence",
-    description: "Real-time price trends, demand spikes, and crop analytics. Become a data-driven entrepreneur.",
-    tag: "Live Data",
-  },
-  {
     icon: Camera,
     title: "AI Quality Scanner",
     description: "Upload a photo, get instant grading. AI detects defects and suggests the right price.",
@@ -54,18 +45,6 @@ const features = [
     title: "Farmer Credit Score",
     description: "Build credit through sales history and reliability. Unlock microloans, seeds, and fertilizer.",
     tag: "Financing",
-  },
-  {
-    icon: Wifi,
-    title: "Offline-First",
-    description: "Works without internet and syncs when back online. Critical for rural Africa.",
-    tag: "No Internet? No Problem",
-  },
-  {
-    icon: Mic,
-    title: "Voice Interface",
-    description: "Speak in Swahili or English. Voice commands for listing, pricing, and selling.",
-    tag: "Swahili Ready",
   },
   {
     icon: Users,
@@ -87,22 +66,22 @@ const item = {
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="py-24 md:py-32 bg-background">
+    <section id="features" className="bg-background py-24 md:py-32">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="mb-16 text-center"
         >
-          <span className="text-sm font-semibold tracking-widest uppercase text-accent">
+          <span className="text-sm font-semibold uppercase tracking-widest text-accent">
             Revolutionary Features
           </span>
-          <h2 className="text-3xl md:text-5xl font-display font-bold mt-3 mb-4 text-foreground">
-            10 Features That Change <span className="text-gradient-gold">Everything</span>
+          <h2 className="mt-3 mb-4 text-3xl font-display font-bold text-foreground md:text-5xl">
+            7 Features That Change <span className="text-gradient-gold">Everything</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Not just a marketplace — an entire ecosystem that makes African agriculture
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+            Not just a marketplace for crops and trade, but an ecosystem that makes Kenyan agriculture
             intelligent, profitable, and connected.
           </p>
         </motion.div>
@@ -112,25 +91,25 @@ export default function FeaturesSection() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
         >
-          {features.map((f) => (
+          {features.map((feature) => (
             <motion.div
-              key={f.title}
+              key={feature.title}
               variants={item}
-              className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-elevated transition-all duration-300"
+              className="group relative rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-elevated"
             >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <f.icon className="w-6 h-6 text-primary" />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20">
+                <feature.icon className="h-6 w-6 text-primary" />
               </div>
-              <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-accent/15 text-accent mb-3">
-                {f.tag}
+              <span className="mb-3 inline-block rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent">
+                {feature.tag}
               </span>
-              <h3 className="font-display font-semibold text-foreground mb-2 text-sm">
-                {f.title}
+              <h3 className="mb-2 text-sm font-display font-semibold text-foreground">
+                {feature.title}
               </h3>
-              <p className="text-muted-foreground text-xs leading-relaxed">
-                {f.description}
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {feature.description}
               </p>
             </motion.div>
           ))}

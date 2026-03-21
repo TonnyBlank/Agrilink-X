@@ -7,6 +7,7 @@ import { Check, Zap, Shield, Crown, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 const plans = [
   {
@@ -80,23 +81,38 @@ export default function UpgradePlan() {
   const [upgrading, setUpgrading] = useState<string | null>(null);
 
 
-  const handleUpgrade = (planId: string) => {
+  const handleUpgrade = async (planId: string) => {
     if (planId === role) return;
     setUpgrading(planId);
 
-    // Simulate M-Pesa STK Push
-    toast.info("M-Pesa STK Push sent to your phone...", { icon: <Smartphone className="w-4 h-4" /> });
+    toast.info("Activating your plan...", { icon: <Smartphone className="w-4 h-4" /> });
 
-    setTimeout(async () => {
+    try {
+      await apiFetch<{ role: string }>("/profiles/me/role", {
+        method: "PATCH",
+        body: { role: planId },
+      });
+
       setActiveRole(planId as typeof role extends null ? never : NonNullable<typeof role>);
       await refreshProfile();
-      toast.success(`Upgraded to ${plans.find(p => p.id === planId)?.name}! Pro features are now active.`, {
+
+      const planName = plans.find((p) => p.id === planId)?.name ?? planId;
+      toast.success(`${planName} is now active.`, {
         icon: <Zap className="w-4 h-4" />,
       });
-      setUpgrading(null);
       navigate(planId === "buyer_enterprise" ? "/dashboard/enterprise" : "/dashboard/pro");
-    }, 3000);
+    } catch (error) {
+      setActiveRole(planId as typeof role extends null ? never : NonNullable<typeof role>);
 
+      const planName = plans.find((p) => p.id === planId)?.name ?? planId;
+      toast.success(`${planName} is now active on this device.`, {
+        description: "Backend sync failed, so this upgrade is stored locally for now.",
+        icon: <Zap className="w-4 h-4" />,
+      });
+      navigate(planId === "buyer_enterprise" ? "/dashboard/enterprise" : "/dashboard/pro");
+    } finally {
+      setUpgrading(null);
+    }
   };
 
   return (

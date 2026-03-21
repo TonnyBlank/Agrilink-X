@@ -1,0 +1,173 @@
+function ReceiptActions({ order, onView }: { order: Order; onView: (order: Order) => void }) {
+  if (!order.paid_at) return null;
+  return <><Button size="sm" variant="outline" className="h-8 whitespace-nowrap rounded-xl px-3 text-xs" onClick={() => onView(order)}><Eye className="mr-1 h-3 w-3" /> View Receipt</Button><Button size="sm" variant="outline" className="h-8 whitespace-nowrap rounded-xl px-3 text-xs" onClick={() => downloadReceipt(order)}><Download className="mr-1 h-3 w-3" /> Download</Button></>;
+}
+
+function OrderEmptyState({ icon: Icon, title, detail }: { icon: typeof Package; title: string; detail: string }) {
+  return <div className="rounded-[1.75rem] border border-dashed border-border bg-white/80 py-14 text-center shadow-sm dark:bg-card/80"><Icon className="mx-auto mb-4 h-12 w-12 text-muted-foreground" /><h3 className="font-display text-xl font-bold text-foreground">{title}</h3><p className="mt-2 text-sm text-muted-foreground">{detail}</p></div>;
+}
+
+function OrderCard(props: {
+  order: Order;
+  view: "selling" | "buying";
+  busy: boolean;
+  phoneNumber: string;
+  onPhoneChange: (value: string) => void;
+  onChangeStatus: (status: string) => void;
+  onStartPayment: () => void;
+  onRefreshPayment: () => void;
+  onViewReceipt: (order: Order) => void;
+}) {
+  const {
+    order,
+    view,
+    busy,
+    phoneNumber,
+    onPhoneChange,
+    onChangeStatus,
+    onStartPayment,
+    onRefreshPayment,
+    onViewReceipt,
+  } = props;
+
+  const personLabel = view === "selling" ? "Buyer" : "Seller";
+  const personName =
+    view === "selling" ? order.buyer_profile?.full_name || "Buyer" : order.farmer_profile?.full_name || "Farmer";
+  const shippingState =
+    order.status === "shipped"
+      ? "In transit"
+      : order.status === "processing"
+        ? "Preparing dispatch"
+        : order.status === "delivered"
+          ? "Delivered"
+        : "Awaiting shipment";
+  const paidLabel = order.paid_at ? "Paid" : order.payment_status;
+  const createdDate = new Date(order.created_at).toLocaleDateString();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-[1rem] border border-border/70 bg-white/90 p-3 shadow-[0_12px_22px_-24px_rgba(15,23,42,0.18)] dark:bg-card/90 dark:shadow-[0_12px_22px_-24px_rgba(0,0,0,0.4)]"
+    >
+        <div className="hidden min-w-[1080px] items-center gap-3 lg:grid lg:grid-cols-[minmax(220px,2fr)_minmax(140px,1.2fr)_90px_120px_110px_170px_auto]">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] bg-primary/10 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
+            {order.product?.image_emoji || emojiFallback}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate font-display text-base font-bold text-foreground">{order.product?.name || "Product"}</p>
+            <p className="truncate text-xs text-muted-foreground">Order {order.id.slice(0, 8)} • {createdDate}</p>
+            {order.notes && <p className="truncate text-xs text-muted-foreground">{order.notes}</p>}
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-foreground">{personName}</p>
+          <p className="truncate text-xs text-muted-foreground">{personLabel}</p>
+        </div>
+
+        <div>
+          <p className="text-sm font-semibold text-foreground">{order.quantity} {order.unit}</p>
+          <p className="text-xs text-muted-foreground">Quantity</p>
+        </div>
+
+        <div>
+          <p className="text-sm font-bold text-foreground">KES {Number(order.total_price).toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground">Order value</p>
+        </div>
+
+        <div>
+          <p className="text-sm font-semibold text-foreground">KES {Number(order.delivery_fee || 0).toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground">Delivery</p>
+        </div>
+
+          <div className="flex min-w-0 flex-wrap gap-1.5">
+            <Badge variant="outline" className={`rounded-full text-[10px] ${statusColors[order.status] || ""}`}>
+              {order.status}
+            </Badge>
+            <Badge variant="outline" className="rounded-full text-[10px]">{paidLabel}</Badge>
+            <Badge variant="outline" className="rounded-full text-[10px]">{shippingState}</Badge>
+          </div>
+
+          <div className="flex flex-nowrap items-center justify-end gap-2 overflow-x-auto pb-1">
+            <Button asChild size="sm" variant="outline" className="h-8 shrink-0 whitespace-nowrap rounded-xl px-3 text-xs">
+              <Link to="/dashboard/messages">
+                <MessageCircle className="mr-1 h-3 w-3" /> {view === "selling" ? "Buyer" : "Seller"}
+              </Link>
+            </Button>
+            <OrderActions order={order} view={view} busy={busy} onChangeStatus={onChangeStatus} />
+            <ReceiptActions order={order} onView={onViewReceipt} />
+          </div>
+        </div>
+
+      <div className="space-y-3 lg:hidden">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] bg-primary/10 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
+            {order.product?.image_emoji || emojiFallback}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+                {view === "selling" ? "Selling" : "Buying"}
+              </span>
+              <Badge variant="outline" className={`rounded-full text-[10px] ${statusColors[order.status] || ""}`}>
+                {order.status}
+              </Badge>
+            </div>
+            <h4 className="mt-2 font-display text-base font-bold leading-tight text-foreground">{order.product?.name || "Product"}</h4>
+            <p className="mt-1 text-sm text-muted-foreground">{personLabel}: {personName}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Qty {order.quantity} {order.unit} • {createdDate}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="rounded-[0.8rem] border border-border bg-background/70 px-3 py-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Value</p>
+            <p className="mt-1 text-sm font-bold text-foreground">KES {Number(order.total_price).toLocaleString()}</p>
+          </div>
+          <div className="rounded-[0.8rem] border border-border bg-background/70 px-3 py-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Delivery</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">KES {Number(order.delivery_fee || 0).toLocaleString()}</p>
+          </div>
+          <div className="rounded-[0.8rem] border border-border bg-background/70 px-3 py-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Payment</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">{paidLabel}</p>
+          </div>
+          <div className="rounded-[0.8rem] border border-border bg-background/70 px-3 py-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Shipping</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">{shippingState}</p>
+          </div>
+        </div>
+
+        {order.notes && (
+          <div className="rounded-[0.8rem] border border-border/60 bg-muted/25 px-3 py-2">
+            <p className="text-sm leading-5 text-muted-foreground">{order.notes}</p>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-2 border-t border-border/70 pt-2">
+          <Button asChild size="sm" variant="outline" className="h-8 rounded-xl px-3">
+            <Link to="/dashboard/messages">
+              <MessageCircle className="mr-1 h-3 w-3" /> {view === "selling" ? "Message Buyer" : "Message Seller"}
+            </Link>
+          </Button>
+          <ReceiptActions order={order} onView={onViewReceipt} />
+          <OrderActions order={order} view={view} busy={busy} onChangeStatus={onChangeStatus} />
+        </div>
+      </div>
+
+      {view === "buying" && order.payment_status !== "paid" && order.status !== "cancelled" && (
+        <div className="mt-3 flex flex-col gap-2 border-t border-border/70 pt-2.5 sm:flex-row sm:flex-wrap">
+          <Input value={phoneNumber} onChange={(event) => onPhoneChange(event.target.value)} placeholder="2547XXXXXXXX" className="h-8 rounded-xl sm:max-w-[180px]" />
+          <Button size="sm" className="h-8 rounded-xl px-3" disabled={busy} onClick={onStartPayment}>
+            {busy ? <LoaderCircle className="mr-1 h-3 w-3 animate-spin" /> : <CreditCard className="mr-1 h-3 w-3" />}
+            Pay Now
+          </Button>
+          <Button size="sm" variant="outline" className="h-8 rounded-xl px-3" disabled={busy || !order.checkout_request_id} onClick={onRefreshPayment}>
+            <RefreshCw className="mr-1 h-3 w-3" /> Check Payment
+          </Button>
+        </div>
+      )}
+
+      {order.payment_error && <p className="mt-2 text-xs text-destructive">{order.payment_error}</p>}

@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { createSupabaseClient } from "../lib/supabase";
-import { resolveAppRole } from "../lib/roles";
+import { AppRole, isAppRole, resolveAppRole } from "../lib/roles";
 import { authenticate, AuthRequest } from "../middleware/auth";
 import multer from "multer";
+import { getSupabaseAdmin } from "../lib/supabaseAdmin";
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
@@ -155,6 +156,43 @@ router.patch("/me", authenticate, async (req: AuthRequest, res) => {
 
   if (error) throw error;
   res.json(data);
+});
+
+router.patch("/me/role", authenticate, async (req: AuthRequest, res) => {
+  const nextRole = req.body?.role;
+
+  if (!isAppRole(nextRole)) {
+    return res.status(400).json({ error: "Invalid role" });
+  }
+
+  try {
+    const admin = getSupabaseAdmin();
+
+    const { error: deleteError } = await admin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", req.userId!);
+
+    if (deleteError) throw deleteError;
+
+    const { error: insertError } = await admin
+      .from("user_roles")
+      .insert({ user_id: req.userId!, role: nextRole as AppRole });
+
+    if (insertError) throw insertError;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    const hint =
+      message.includes("SUPABASE_SERVICE_ROLE_KEY") || message.includes("Invalid API key")
+        ? "Role update failed because the backend service role key is missing or invalid."
+        : message.includes("relation") && message.includes("user_roles")
+          ? "Role update failed because the Supabase user_roles table is missing. Apply the role migration first."
+          : "Failed to update plan role.";
+
+    return res.status(500).json({ error: hint });
+  }
+
+  res.json({ role: nextRole });
 });
 
 router.post("/me/photo", authenticate, upload.single("photo"), async (req: AuthRequest, res) => {
