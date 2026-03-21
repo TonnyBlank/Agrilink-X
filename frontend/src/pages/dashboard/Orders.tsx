@@ -415,7 +415,7 @@ function OrdersDesktopTable(props: {
   const { orders, view, busyOrderId, paymentPhoneByOrder, onPhoneChange, onChangeStatus, onStartPayment, onRefreshPayment, onViewReceipt } = props;
 
   return (
-    <div className="hidden overflow-x-auto rounded-[1rem] border border-border/70 bg-white/90 shadow-[0_12px_24px_-24px_rgba(15,23,42,0.18)] lg:block dark:bg-card/90">
+    <div className="overflow-x-auto rounded-[1rem] border border-border/70 bg-white/90 shadow-[0_12px_24px_-24px_rgba(15,23,42,0.18)] dark:bg-card/90">
       <table className="w-full min-w-[1220px] border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/25 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -515,7 +515,7 @@ function ShippingDesktopTable(props: {
   const { orders, sellingOrders } = props;
 
   return (
-    <div className="hidden overflow-x-auto rounded-[1rem] border border-border/70 bg-white/90 shadow-[0_12px_24px_-24px_rgba(15,23,42,0.18)] lg:block dark:bg-card/90">
+    <div className="overflow-x-auto rounded-[1rem] border border-border/70 bg-white/90 shadow-[0_12px_24px_-24px_rgba(15,23,42,0.18)] dark:bg-card/90">
       <table className="w-full min-w-[1040px] border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/25 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -563,6 +563,47 @@ function ShippingDesktopTable(props: {
         </tbody>
       </table>
     </div>
+  );
+}
+
+function ShippingCard(props: {
+  order: Order;
+  isSelling: boolean;
+}) {
+  const { order, isSelling } = props;
+  const counterparty = isSelling ? order.buyer_profile?.full_name || "Buyer" : order.farmer_profile?.full_name || "Farmer";
+  const shippingCopy =
+    order.status === "delivered" ? "Completed delivery" : order.status === "shipped" ? "In transit" : "Preparing shipment";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-[1rem] border border-border/70 bg-white/90 p-3 shadow-[0_12px_22px_-24px_rgba(15,23,42,0.18)] lg:hidden dark:bg-card/90 dark:shadow-[0_12px_22px_-24px_rgba(0,0,0,0.4)]"
+    >
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] bg-primary/10 text-[10px] font-bold uppercase tracking-[0.08em] text-primary">
+          {order.product?.image_emoji || emojiFallback}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+              {isSelling ? "Selling" : "Buying"}
+            </span>
+            <Badge variant="outline" className={`rounded-full text-[10px] ${statusColors[order.status] || ""}`}>
+              {order.status}
+            </Badge>
+          </div>
+          <h4 className="mt-2 font-display text-base font-bold leading-tight text-foreground">{order.product?.name || "Product"}</h4>
+          <p className="mt-1 text-sm text-muted-foreground">Counterparty: {counterparty}</p>
+          <p className="mt-1 break-all text-xs text-muted-foreground">Transaction {getTransactionReference(order)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Qty {order.quantity} {order.unit} | KES {Number(order.total_price).toLocaleString()}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{shippingCopy}</p>
+        </div>
+      </div>
+    </motion.div>
   );
 }
 
@@ -1035,17 +1076,19 @@ export default function Orders() {
                 />
               )}
               {!!filteredSellingOrders.length && (
-                <OrdersDesktopTable
-                  orders={filteredSellingOrders}
-                  view="selling"
-                  busyOrderId={busyOrderId}
-                  paymentPhoneByOrder={paymentPhoneByOrder}
-                  onPhoneChange={(orderId, value) => setPaymentPhoneByOrder((current) => ({ ...current, [orderId]: value }))}
-                  onChangeStatus={(orderId, status) => void handleChangeStatus(orderId, status)}
-                  onStartPayment={(orderId) => void handleStartPayment(orderId)}
-                  onRefreshPayment={(orderId) => void handleRefreshPayment(orderId)}
-                  onViewReceipt={setReceiptOrder}
-                />
+                <>
+                  <OrdersDesktopTable
+                    orders={filteredSellingOrders}
+                    view="selling"
+                    busyOrderId={busyOrderId}
+                    paymentPhoneByOrder={paymentPhoneByOrder}
+                    onPhoneChange={(orderId, value) => setPaymentPhoneByOrder((current) => ({ ...current, [orderId]: value }))}
+                    onChangeStatus={(orderId, status) => void handleChangeStatus(orderId, status)}
+                    onStartPayment={(orderId) => void handleStartPayment(orderId)}
+                    onRefreshPayment={(orderId) => void handleRefreshPayment(orderId)}
+                    onViewReceipt={setReceiptOrder}
+                  />
+                </>
               )}
             </TabsContent>
 
@@ -1063,17 +1106,19 @@ export default function Orders() {
                 />
               )}
               {!!filteredBuyingOrders.length && (
-                <OrdersDesktopTable
-                  orders={filteredBuyingOrders}
-                  view="buying"
-                  busyOrderId={busyOrderId}
-                  paymentPhoneByOrder={paymentPhoneByOrder}
-                  onPhoneChange={(orderId, value) => setPaymentPhoneByOrder((current) => ({ ...current, [orderId]: value }))}
-                  onChangeStatus={(orderId, status) => void handleChangeStatus(orderId, status)}
-                  onStartPayment={(orderId) => void handleStartPayment(orderId)}
-                  onRefreshPayment={(orderId) => void handleRefreshPayment(orderId)}
-                  onViewReceipt={setReceiptOrder}
-                />
+                <>
+                  <OrdersDesktopTable
+                    orders={filteredBuyingOrders}
+                    view="buying"
+                    busyOrderId={busyOrderId}
+                    paymentPhoneByOrder={paymentPhoneByOrder}
+                    onPhoneChange={(orderId, value) => setPaymentPhoneByOrder((current) => ({ ...current, [orderId]: value }))}
+                    onChangeStatus={(orderId, status) => void handleChangeStatus(orderId, status)}
+                    onStartPayment={(orderId) => void handleStartPayment(orderId)}
+                    onRefreshPayment={(orderId) => void handleRefreshPayment(orderId)}
+                    onViewReceipt={setReceiptOrder}
+                  />
+                </>
               )}
             </TabsContent>
 
@@ -1090,7 +1135,11 @@ export default function Orders() {
                 }
               />
             )}
-            {!!filteredShippingOrders.length && <ShippingDesktopTable orders={filteredShippingOrders} sellingOrders={sellingOrders} />}
+            {!!filteredShippingOrders.length && (
+              <>
+                <ShippingDesktopTable orders={filteredShippingOrders} sellingOrders={sellingOrders} />
+              </>
+            )}
           </TabsContent>
         </Tabs>
       </div>
