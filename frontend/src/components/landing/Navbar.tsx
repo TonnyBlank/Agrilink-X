@@ -8,6 +8,7 @@ const navLinks = [
   { label: "Features", href: "#features" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Market Intelligence", href: "#intelligence" },
+  { label: "Micro Loans", href: "#micro-loans" },
   { label: "Pricing", href: "#pricing" },
 ];
 

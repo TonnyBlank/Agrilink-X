@@ -67,7 +67,7 @@ export default function HeroSection() {
               </Link>
             </Button>
             <Button asChild size="lg" className="h-14 px-8 text-base font-semibold text-white shadow-[0_14px_28px_-18px_rgba(0,0,0,0.45)] transition-colors hover:bg-[#0b4a24] bg-[#0f5c2e]">
-              <a href="#buyer-enterprise">
+              <a href="#micro-loans">
                 Micro Loan
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
