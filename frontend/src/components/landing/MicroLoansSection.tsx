@@ -106,7 +106,7 @@ export default function MicroLoansSection() {
             </p>
           </div>
 
-          <div className="mt-24 hidden lg:block">
+          <div className="mt-32 hidden lg:block">
             <div className="relative mx-auto h-[34rem] w-[34rem]">
               <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_180deg,_rgba(34,197,94,0.18),_rgba(14,165,233,0.16),_rgba(34,197,94,0.18))]" />
               <div className="absolute inset-10 rounded-full border border-border/40 bg-background/80" />
