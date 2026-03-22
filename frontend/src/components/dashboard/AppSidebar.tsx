@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   BarChart3,
@@ -12,7 +13,9 @@ import {
   Zap,
   LogOut,
   ChevronLeft,
+  ChevronDown,
   CreditCard,
+  ShieldCheck,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -24,8 +27,12 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarFooter,
   SidebarHeader,
   useSidebar,
@@ -35,6 +42,14 @@ import { Button } from "@/components/ui/button";
 const mainNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Performance", url: "/dashboard/analytics", icon: BarChart3 },
+];
+
+const adminNav = [
+  { title: "Overview", url: "/dashboard/admin", icon: ShieldCheck },
+  { title: "Loan Analytics", url: "/dashboard/admin/loans", icon: CreditCard },
+  { title: "Loan Decisions", url: "/dashboard/admin/loan-decisions", icon: ClipboardList },
+  { title: "Transactions", url: "/dashboard/admin/transactions", icon: ClipboardList },
+  { title: "User Roles", url: "/dashboard/admin/users", icon: Users },
 ];
 
 const farmerNav = [
@@ -59,6 +74,11 @@ type NavItem = {
   url: string;
   icon: typeof LayoutDashboard;
   pro?: boolean;
+};
+
+type NavChildItem = {
+  title: string;
+  url: string;
 };
 
 interface NavGroupProps {
@@ -126,16 +146,133 @@ function NavGroup({ label, items, collapsed }: NavGroupProps) {
   );
 }
 
+interface GrowthNavGroupProps {
+  collapsed: boolean;
+}
+
+function GrowthNavGroup({ collapsed }: GrowthNavGroupProps) {
+  const location = useLocation();
+  const { role } = useAuth();
+  const { isMobile, setOpenMobile } = useSidebar();
+  const showUpgradeLink = role === "farmer_free";
+  const isMicroLoansRoute = location.pathname === "/dashboard/micro-loans";
+  const [microLoansOpen, setMicroLoansOpen] = useState(isMicroLoansRoute);
+  const microLoanChildren: NavChildItem[] = [
+    { title: "Borrow Loan", url: "/dashboard/micro-loans?section=borrow" },
+    { title: "Repay Loan", url: "/dashboard/micro-loans?section=repay" },
+    { title: "Loan Status", url: "/dashboard/micro-loans?section=status" },
+  ];
+
+  useEffect(() => {
+    if (isMicroLoansRoute) {
+      setMicroLoansOpen(true);
+    }
+  }, [isMicroLoansRoute]);
+
+  return (
+    <SidebarGroup>
+      {!collapsed && (
+        <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-medium px-3">
+          Growth
+        </SidebarGroupLabel>
+      )}
+      <SidebarGroupContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              isActive={isMicroLoansRoute}
+              onClick={() => {
+                if (collapsed) {
+                  setMicroLoansOpen(true);
+                } else {
+                  setMicroLoansOpen((open) => !open);
+                }
+              }}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                isMicroLoansRoute
+                  ? "bg-sidebar-primary/20 text-sidebar-primary"
+                  : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+              }`}
+            >
+              <CreditCard className="w-[18px] h-[18px] shrink-0" />
+              {!collapsed && <span className="truncate">Micro Loans</span>}
+              {!collapsed && role !== "farmer_pro" && role !== "buyer_enterprise" && (
+                <span className="ml-auto mr-6 text-[10px] bg-gold-500/20 text-gold-400 px-1.5 py-0.5 rounded-full font-semibold">
+                  PRO
+                </span>
+              )}
+            </SidebarMenuButton>
+            {!collapsed && (
+              <SidebarMenuAction
+                onClick={() => setMicroLoansOpen((open) => !open)}
+                aria-label={microLoansOpen ? "Collapse Micro Loans menu" : "Expand Micro Loans menu"}
+              >
+                <ChevronDown className={`w-4 h-4 transition-transform ${microLoansOpen ? "rotate-180" : ""}`} />
+              </SidebarMenuAction>
+            )}
+            {microLoansOpen && (
+              <SidebarMenuSub>
+                {microLoanChildren.map((item) => {
+                  const isActive = `${location.pathname}${location.search}` === item.url;
+
+                  return (
+                    <SidebarMenuSubItem key={item.title}>
+                      <SidebarMenuSubButton asChild isActive={isActive}>
+                        <NavLink
+                          to={item.url}
+                          onClick={() => {
+                            if (isMobile) {
+                              setOpenMobile(false);
+                            }
+                          }}
+                          activeClassName=""
+                        >
+                          <span>{item.title}</span>
+                        </NavLink>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  );
+                })}
+              </SidebarMenuSub>
+            )}
+          </SidebarMenuItem>
+
+          {showUpgradeLink ? (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <NavLink
+                  to="/dashboard/upgrade"
+                  onClick={() => {
+                    if (isMobile) {
+                      setOpenMobile(false);
+                    }
+                  }}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    location.pathname === "/dashboard/upgrade"
+                      ? "bg-sidebar-primary/20 text-sidebar-primary"
+                      : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+                  }`}
+                  activeClassName=""
+                >
+                  <Zap className="w-[18px] h-[18px] shrink-0" />
+                  {!collapsed && <span className="truncate">Upgrade Plan</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ) : null}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === "collapsed";
   const { signOut, profile, role, user } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = role === "admin";
   const showUpgradeLink = role === "farmer_free";
-  const growthNav: NavItem[] = [
-    { title: "Micro Loans", url: "/dashboard/micro-loans", icon: CreditCard, pro: true },
-    ...(showUpgradeLink ? [{ title: "Upgrade Plan", url: "/dashboard/upgrade", icon: Zap }] : []),
-  ];
   const displayName =
     profile?.full_name ||
     (typeof user?.user_metadata?.full_name === "string" ? user.user_metadata.full_name : null) ||
@@ -145,6 +282,8 @@ export function AppSidebar() {
     ? { label: "Enterprise", cls: "bg-steel-500/20 text-steel-400" }
     : role === "farmer_pro"
     ? { label: "Pro", cls: "bg-gold-500/20 text-gold-400" }
+    : role === "admin"
+    ? { label: "Admin", cls: "bg-rose-500/20 text-rose-300" }
     : { label: "Free", cls: "bg-emerald-500/20 text-emerald-400" };
 
   return (
@@ -180,11 +319,17 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-2 space-y-1">
-        <NavGroup label="Command Center" items={mainNav} collapsed={collapsed} />
-        <NavGroup label="Farm Operations" items={farmerNav} collapsed={collapsed} />
-        <NavGroup label="Trade" items={tradeNav} collapsed={collapsed} />
-        <NavGroup label="Intelligence" items={intelligenceNav} collapsed={collapsed} />
-        <NavGroup label="Growth" items={growthNav} collapsed={collapsed} />
+        {isAdmin ? (
+          <NavGroup label="Administration" items={adminNav} collapsed={collapsed} />
+        ) : (
+          <>
+            <NavGroup label="Command Center" items={mainNav} collapsed={collapsed} />
+            <NavGroup label="Farm Operations" items={farmerNav} collapsed={collapsed} />
+            <NavGroup label="Trade" items={tradeNav} collapsed={collapsed} />
+            <NavGroup label="Intelligence" items={intelligenceNav} collapsed={collapsed} />
+            <GrowthNavGroup collapsed={collapsed} />
+          </>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">

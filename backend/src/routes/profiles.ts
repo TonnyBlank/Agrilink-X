@@ -165,6 +165,10 @@ router.patch("/me/role", authenticate, async (req: AuthRequest, res) => {
     return res.status(400).json({ error: "Invalid role" });
   }
 
+  if (nextRole === "admin") {
+    return res.status(403).json({ error: "Admin access can only be granted from the admin panel." });
+  }
+
   try {
     const admin = getSupabaseAdmin();
 

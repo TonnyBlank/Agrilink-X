@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 
-export const APP_ROLES = ["farmer_free", "farmer_pro", "buyer_enterprise"] as const;
+export const APP_ROLES = ["farmer_free", "farmer_pro", "buyer_enterprise", "admin"] as const;
 
 export type AppRole = (typeof APP_ROLES)[number];
 

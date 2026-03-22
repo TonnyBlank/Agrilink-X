@@ -1,9 +1,18 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import type { Database } from "@/integrations/supabase/types";
 
-export default function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { session, loading } = useAuth();
+type AppRole = Database["public"]["Enums"]["app_role"];
+
+export default function ProtectedRoute({
+  children,
+  allowedRoles,
+}: {
+  children: ReactNode;
+  allowedRoles?: AppRole[];
+}) {
+  const { session, loading, role } = useAuth();
 
   if (loading) {
     return (
@@ -14,5 +23,8 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
   }
 
   if (!session) return <Navigate to="/login" replace />;
+  if (allowedRoles && role && !allowedRoles.includes(role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
   return <>{children}</>;
 }

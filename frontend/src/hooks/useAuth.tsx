@@ -70,15 +70,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const data = await apiFetch<{ profile: Profile; role: AppRole | null }>("/profiles/me");
       setProfile(data.profile);
-      const localRole = getStoredRole(userId);
-
-      if (localRole) {
-        setRole(localRole);
-      } else if (data.role) {
+      if (data.role) {
         setRole(data.role);
         setStoredRole(userId, data.role);
       } else {
-        setRole("farmer_free");
+        const localRole = getStoredRole(userId);
+        setRole(localRole || "farmer_free");
       }
     } catch (error) {
       console.error("Failed to load auth context from API, falling back to Supabase", error);

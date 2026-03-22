@@ -8,6 +8,11 @@ export default function DashboardRedirect() {
 
   useEffect(() => {
     if (!loading) {
+      if (role === "admin") {
+        navigate("/dashboard/admin", { replace: true });
+        return;
+      }
+
       if (role === "buyer_enterprise") {
         navigate("/dashboard/enterprise", { replace: true });
         return;

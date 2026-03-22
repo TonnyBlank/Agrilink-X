@@ -1,5 +1,5 @@
 const links = {
-  Product: ["Features", "Pricing", "API", "Mobile App"],
+  Product: ["Features", "Pricing", "Mobile App"],
   Company: ["About", "Careers", "Blog", "Press"],
   Resources: ["Documentation", "Help Center", "Community", "Partners"],
   Legal: ["Privacy", "Terms", "Cookie Policy"],
