@@ -6,7 +6,6 @@ import {
   CreditCard,
   KeyRound,
   MapPin,
-  Palette,
   Phone,
   Save,
   ShieldCheck,
@@ -14,7 +13,6 @@ import {
   UserCircle2,
   Wallet,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,7 +29,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function Profile() {
   const { profile, refreshProfile, user } = useAuth();
   const { verification, uploading, loading, uploadDocuments } = useIdVerification();
-  const { theme, setTheme } = useTheme();
   const [searchParams] = useSearchParams();
   const status = verification?.status || "unverified";
 
@@ -57,7 +54,7 @@ export default function Profile() {
     confirmPassword: "",
   });
   const [activeSection, setActiveSection] = useState<
-    "personal" | "contact" | "payout" | "appearance" | "security" | "verification"
+    "personal" | "contact" | "payout" | "security" | "verification"
   >("personal");
 
   const photoPreview = useMemo(() => localPhotoPreview || profile?.photo_url || "", [localPhotoPreview, profile?.photo_url]);
@@ -89,7 +86,6 @@ export default function Profile() {
       section === "personal" ||
       section === "contact" ||
       section === "payout" ||
-      section === "appearance" ||
       section === "security" ||
       section === "verification"
     ) {
@@ -312,7 +308,6 @@ export default function Profile() {
               { id: "personal", label: "Personal Details", icon: UserCircle2 },
               { id: "contact", label: "Contacts Details", icon: Phone },
               { id: "payout", label: "Payout Details", icon: Wallet },
-              { id: "appearance", label: "Appearance", icon: Palette },
               { id: "security", label: "Change Password", icon: KeyRound },
               { id: "verification", label: "Verification", icon: ShieldCheck },
             ].map((item) => (
@@ -449,33 +444,6 @@ export default function Profile() {
                       </div>
                     </div>
                   )}
-                </div>
-              </section>
-            )}
-
-            {activeSection === "appearance" && (
-              <section className="bento-card">
-                <h3 className="font-display text-xl font-bold text-foreground">Appearance</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Pick how the app should look on this device.</p>
-                <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  {[
-                    { value: "light", label: "Light" },
-                    { value: "dark", label: "Dark" },
-                    { value: "system", label: "System" },
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setTheme(option.value)}
-                      className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition-colors ${
-                        (theme || "system") === option.value
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-background text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
                 </div>
               </section>
             )}
