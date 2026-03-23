@@ -14,9 +14,17 @@ export default function ResetPasswordPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check for recovery token in URL hash
+    // Supabase recovery links may arrive via hash fragments or query params.
     const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
+    const search = window.location.search;
+    const searchParams = new URLSearchParams(search);
+
+    if (
+      hash.includes("type=recovery") ||
+      searchParams.get("type") === "recovery" ||
+      searchParams.has("code") ||
+      searchParams.has("token_hash")
+    ) {
       setReady(true);
     }
   }, []);
